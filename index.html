@@ -50,7 +50,9 @@ Level 1
 
 let currentQuestion = null;
 let streak = 0;
-
+let answered = false;
+let reviewList = [];
+let questionCount = 0;
 function shuffle(array){
     return array.sort(() => Math.random() - 0.5);
 }
@@ -60,7 +62,7 @@ function getRandomQuestion(){
 }
 
 function loadQuestion(){
-
+    answered = false;
     currentQuestion = getRandomQuestion();
 
     document.getElementById("questionText").innerHTML =
@@ -107,9 +109,22 @@ function loadQuestion(){
 
 function checkAnswer(answer){
 
+    if(answered) return;
+
+    answered = true;
+
+    const buttons =
+    document.querySelectorAll(".choice");
+
+    buttons.forEach(btn=>{
+        btn.disabled = true;
+    });
+
     if(answer === currentQuestion.jp){
 
         streak++;
+
+        playCorrect();
 
         document.getElementById("result").innerHTML =
         "⭕ 正解！";
@@ -118,15 +133,17 @@ function checkAnswer(answer){
 
         streak = 0;
 
+        playWrong();
+
+        reviewList.push(currentQuestion);
+
         document.getElementById("result").innerHTML =
         "❌ 不正解<br>正解: " +
         currentQuestion.jp;
-
     }
 
     document.getElementById("streak").innerHTML =
     "🔥 Streak: " + streak;
-
 }
 
 function nextQuestion(){
@@ -156,6 +173,18 @@ function speakQuestion(){
 loadQuestion();
 
 </script>
+function playCorrect(){
+    const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+    );
+    audio.play();
+}
 
+function playWrong(){
+    const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+    );
+    audio.play();
+}
 </body>
 </html>
