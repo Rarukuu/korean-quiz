@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Korean Quest</title>
+<title>Korean Quest 2.0</title>
 
 <link rel="stylesheet" href="style.css">
 <script src="questions.js"></script>
 
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>🇰🇷 Korean Quest</h1>
+<h1>🇰🇷 Korean Quest 2.0</h1>
 
 <div id="level">
-Level 1
+🎯 Level 1
 </div>
 
 <div id="streak">
@@ -28,7 +30,37 @@ Level 1
 📊 正答率: 0%
 </div>
 
+<div id="mastered">
+📚 覚えた単語: 0
+</div>
+
+<div id="weakWords">
+⚠️ 苦手単語
+</div>
+
 <br>
+
+<select id="categorySelect">
+
+<option value="all">全体</option>
+
+<option value="greeting">挨拶</option>
+
+<option value="people">人</option>
+
+<option value="school">学校</option>
+
+<option value="food">食べ物</option>
+
+<option value="daily">日常</option>
+
+<option value="emotion">感情</option>
+
+<option value="conversation">会話</option>
+
+</select>
+
+<br><br>
 
 <button id="audioBtn" onclick="speakQuestion()">
 🔊 音声を聞く
@@ -53,193 +85,410 @@ Level 1
 <script>
 
 let currentQuestion = null;
+
 let streak = 0;
+
 let answered = false;
+
 let reviewList = [];
-let questionCount = 0;
 
 let totalAnswers = 0;
+
 let correctAnswers = 0;
-    
+
+let unlockedLevel = 1;
+
+let masteredWords = {};
+
+let wrongWords = {};
+
 function playCorrect(){
-    const audio = new Audio(
-    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-    );
-    audio.play();
+
+const audio = new Audio(
+"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+);
+
+audio.play();
+
 }
 
 function playWrong(){
-    const audio = new Audio(
-    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
-    );
-    audio.play();
+
+const audio = new Audio(
+"https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+);
+
+audio.play();
+
 }
 
 function shuffle(array){
-    return array.sort(() => Math.random() - 0.5);
+
+return array.sort(
+()=>Math.random()-0.5
+);
+
 }
 
 function getQuestion(){
 
-    questionCount++;
+for(let i=0;i<reviewList.length;i++){
 
-    for(let i = 0; i < reviewList.length; i++){
+reviewList[i].delay--;
 
-        reviewList[i].delay--;
+if(reviewList[i].delay<=0){
 
-        if(reviewList[i].delay <= 0){
+const q =
+reviewList[i].question;
 
-            const reviewQuestion =
-            reviewList[i].question;
+reviewList.splice(i,1);
 
-            reviewList.splice(i,1);
+return q;
 
-            return reviewQuestion;
-        }
-    }
-
-    return quiz[
-        Math.floor(Math.random() * quiz.length)
-    ];
 }
+
+}
+
+let selected =
+document.getElementById(
+"categorySelect"
+).value;
+
+let available =
+quiz.filter(q=>{
+
+let levelOK =
+q.level <= unlockedLevel;
+
+let categoryOK =
+selected==="all" ||
+q.category===selected;
+
+return levelOK && categoryOK;
+
+});
+
+return available[
+Math.floor(
+Math.random()*available.length
+)
+];
+
+}
+
 function loadQuestion(){
-    answered = false;
-    currentQuestion = getQuestion();
 
-    document.getElementById("questionText").innerHTML =
-    "🔊 音声を聞いて答えよう";
+answered=false;
 
-    document.getElementById("result").innerHTML = "";
+currentQuestion=getQuestion();
 
-    const choicesDiv =
-    document.getElementById("choices");
+document.getElementById(
+"result"
+).innerHTML="";
 
-    choicesDiv.innerHTML = "";
+document.getElementById(
+"questionText"
+).innerHTML=
+"🔊 音声を聞いて答えよう";
 
-    let answers = [currentQuestion.jp];
+const choicesDiv =
+document.getElementById(
+"choices"
+);
 
-    while(answers.length < 4){
+choicesDiv.innerHTML="";
 
-        const randomAnswer =
-        quiz[Math.floor(Math.random()*quiz.length)].jp;
+let answers=[
+currentQuestion.jp
+];
 
-        if(!answers.includes(randomAnswer)){
-            answers.push(randomAnswer);
-        }
-    }
+while(
+answers.length<4
+){
 
-    answers = shuffle(answers);
+const random =
+quiz[
+Math.floor(
+Math.random()*quiz.length
+)
+].jp;
 
-    answers.forEach(answer => {
+if(
+!answers.includes(random)
+){
+answers.push(random);
+}
 
-        const btn =
-        document.createElement("button");
+}
 
-        btn.className = "choice";
+answers=
+shuffle(answers);
 
-        btn.innerText = answer;
+answers.forEach(answer=>{
 
-        btn.onclick = () =>
-        checkAnswer(answer);
+const btn =
+document.createElement(
+"button"
+);
 
-        choicesDiv.appendChild(btn);
+btn.className=
+"choice";
 
-    });
+btn.innerText=
+answer;
+
+btn.onclick=
+()=>checkAnswer(answer);
+
+choicesDiv.appendChild(btn);
+
+});
 
 }
 
 function checkAnswer(answer){
 
-    if(answered) return;
+if(answered) return;
 
-    answered = true;
+answered=true;
 
-    const buttons =
-    document.querySelectorAll(".choice");
-
-    buttons.forEach(btn=>{
-        btn.disabled = true;
-    });
-
-    if(answer === currentQuestion.jp){
-
-        streak++;
-
-        correctAnswers++;
-　　　　　totalAnswers++;
-
-        playCorrect();
-
-        document.getElementById("result").innerHTML =
-"⭕ 正解！<br><br>" +
-"🇰🇷 " + currentQuestion.ko +
-"<br>" +
-"🇯🇵 " + currentQuestion.jp;
-
-    }else{
-
-        streak = 0;
-        
-　　　　　totalAnswers++;
-        
-        playWrong();
-
-        reviewList.push({
-    question: currentQuestion,
-    delay: 3
+document
+.querySelectorAll(".choice")
+.forEach(btn=>{
+btn.disabled=true;
 });
 
-        document.getElementById("result").innerHTML =
-"❌ 不正解<br><br>" +
-"🇰🇷 " + currentQuestion.ko +
+totalAnswers++;
+
+if(
+answer===
+currentQuestion.jp
+){
+
+streak++;
+
+correctAnswers++;
+
+playCorrect();
+
+masteredWords[
+currentQuestion.ko
+]=true;
+
+document.getElementById(
+"result"
+).innerHTML=
+
+"⭕ 正解！<br><br>" +
+
+"🇰🇷 "+
+currentQuestion.ko+
+
 "<br>" +
-"🇯🇵 " + currentQuestion.jp;
-    }
 
-    document.getElementById("streak").innerHTML =
-    "🔥 Streak: " + streak;
+"🇯🇵 "+
+currentQuestion.jp;
 
-    let accuracy =
+}else{
 
+streak=0;
+
+playWrong();
+
+wrongWords[
+currentQuestion.ko
+]=
+(
+wrongWords[
+currentQuestion.ko
+]||0
+)+1;
+
+reviewList.push({
+question:
+currentQuestion,
+delay:3
+});
+
+document.getElementById(
+"result"
+).innerHTML=
+
+"❌ 不正解<br><br>" +
+
+"🇰🇷 "+
+currentQuestion.ko+
+
+"<br>" +
+
+"🇯🇵 "+
+currentQuestion.jp;
+
+}
+
+updateStats();
+
+saveData();
+
+}
+
+function updateStats(){
+
+let accuracy =
 Math.round(
-
-(correctAnswers / totalAnswers) * 100
-
+(correctAnswers/
+totalAnswers)*100
 );
 
-document.getElementById("accuracy").innerHTML =
+if(totalAnswers===0){
+accuracy=0;
+}
 
-"📊 正答率: " + accuracy + "%";
+if(
+accuracy>=80 &&
+unlockedLevel<3
+){
+unlockedLevel++;
+}
+
+document.getElementById(
+"accuracy"
+).innerHTML=
+"📊 正答率: "+
+accuracy+"%";
+
+document.getElementById(
+"streak"
+).innerHTML=
+"🔥 Streak: "+
+streak;
+
+document.getElementById(
+"level"
+).innerHTML=
+"🎯 Level "+
+unlockedLevel;
+
+document.getElementById(
+"mastered"
+).innerHTML=
+
+"📚 覚えた単語: "+
+
+Object.keys(
+masteredWords
+).length;
+
+const weakWords =
+Object.entries(
+wrongWords
+)
+.sort(
+(a,b)=>
+b[1]-a[1]
+)
+.slice(0,5);
+
+document.getElementById(
+"weakWords"
+).innerHTML=
+
+"⚠️ 苦手単語<br>"+
+
+weakWords
+.map(
+w=>w[0]+" ("+w[1]+")"
+)
+.join("<br>");
+
 }
 
 function nextQuestion(){
 
-    loadQuestion();
+loadQuestion();
 
 }
 
 function speakQuestion(){
 
-    if(!currentQuestion) return;
+if(!currentQuestion)
+return;
 
-    speechSynthesis.cancel();
+speechSynthesis.cancel();
 
-    const utterance =
-    new SpeechSynthesisUtterance(
-        currentQuestion.ko
-    );
+const utterance =
+new SpeechSynthesisUtterance(
+currentQuestion.ko
+);
 
-    utterance.lang = "ko-KR";
-    utterance.rate = 0.9;
+utterance.lang=
+"ko-KR";
 
-    speechSynthesis.speak(utterance);
+utterance.rate=
+0.9;
+
+speechSynthesis.speak(
+utterance
+);
 
 }
+
+function saveData(){
+
+localStorage.setItem(
+"koreanQuestData",
+JSON.stringify({
+
+streak,
+totalAnswers,
+correctAnswers,
+unlockedLevel,
+masteredWords,
+wrongWords
+
+})
+);
+
+}
+
+function loadData(){
+
+const data =
+JSON.parse(
+localStorage.getItem(
+"koreanQuestData"
+)
+);
+
+if(!data) return;
+
+streak=
+data.streak||0;
+
+totalAnswers=
+data.totalAnswers||0;
+
+correctAnswers=
+data.correctAnswers||0;
+
+unlockedLevel=
+data.unlockedLevel||1;
+
+masteredWords=
+data.masteredWords||{};
+
+wrongWords=
+data.wrongWords||{};
+
+}
+
+loadData();
+
+updateStats();
 
 loadQuestion();
 
 </script>
 
 </body>
-
-</html
+</html>
