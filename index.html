@@ -72,13 +72,25 @@ function shuffle(array){
     return array.sort(() => Math.random() - 0.5);
 }
 
-function getRandomQuestion(){
-    return quiz[Math.floor(Math.random() * quiz.length)];
+function getQuestion(){
+
+    questionCount++;
+
+    if(
+        reviewList.length > 0 &&
+        questionCount % 4 === 0
+    ){
+        return reviewList.shift();
+    }
+
+    return quiz[
+        Math.floor(Math.random() * quiz.length)
+    ];
 }
 
 function loadQuestion(){
     answered = false;
-    currentQuestion = getRandomQuestion();
+    currentQuestion = getQuestion();
 
     document.getElementById("questionText").innerHTML =
     "🔊 音声を聞いて答えよう";
