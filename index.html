@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Korean Quiz</title>
+</head>
+<body>
+
+<h1>韓国語クイズ</h1>
+
+<p>지금 뭐 해?</p>
+
+<button onclick="check(true)">何してる？</button>
+<button onclick="check(false)">どこ行くの？</button>
+
+<p id="result"></p>
+
+<script>
+function check(correct) {
+  document.getElementById("result").innerHTML =
+    correct ? "⭕ 正解" : "❌ 不正解";
+}
+</script>
+
+</body>
+</html>
