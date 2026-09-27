@@ -53,6 +53,21 @@ let streak = 0;
 let answered = false;
 let reviewList = [];
 let questionCount = 0;
+
+function playCorrect(){
+    const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+    );
+    audio.play();
+}
+
+function playWrong(){
+    const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+    );
+    audio.play();
+}
+
 function shuffle(array){
     return array.sort(() => Math.random() - 0.5);
 }
@@ -173,18 +188,7 @@ function speakQuestion(){
 loadQuestion();
 
 </script>
-function playCorrect(){
-    const audio = new Audio(
-    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-    );
-    audio.play();
-}
 
-function playWrong(){
-    const audio = new Audio(
-    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
-    );
-    audio.play();
-}
 </body>
-</html>
+
+</html
