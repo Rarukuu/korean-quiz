@@ -161,7 +161,10 @@ function checkAnswer(answer){
         playCorrect();
 
         document.getElementById("result").innerHTML =
-        "⭕ 正解！";
+"⭕ 正解！<br><br>" +
+"🇰🇷 " + currentQuestion.ko +
+"<br>" +
+"🇯🇵 " + currentQuestion.jp;
 
     }else{
 
@@ -175,8 +178,10 @@ function checkAnswer(answer){
 });
 
         document.getElementById("result").innerHTML =
-        "❌ 不正解<br>正解: " +
-        currentQuestion.jp;
+"❌ 不正解<br><br>" +
+"🇰🇷 " + currentQuestion.ko +
+"<br>" +
+"🇯🇵 " + currentQuestion.jp;
     }
 
     document.getElementById("streak").innerHTML =
