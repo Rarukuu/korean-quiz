@@ -24,6 +24,10 @@ Level 1
 🔥 Streak: 0
 </div>
 
+<div id="accuracy">
+📊 正答率: 0%
+</div>
+
 <br>
 
 <button id="audioBtn" onclick="speakQuestion()">
@@ -54,6 +58,9 @@ let answered = false;
 let reviewList = [];
 let questionCount = 0;
 
+let totalAnswers = 0;
+let correctAnswers = 0;
+    
 function playCorrect(){
     const audio = new Audio(
     "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
@@ -158,6 +165,9 @@ function checkAnswer(answer){
 
         streak++;
 
+        correctAnswers++;
+　　　　　totalAnswers++;
+
         playCorrect();
 
         document.getElementById("result").innerHTML =
@@ -169,7 +179,9 @@ function checkAnswer(answer){
     }else{
 
         streak = 0;
-
+        
+　　　　　totalAnswers++;
+        
         playWrong();
 
         reviewList.push({
@@ -186,6 +198,18 @@ function checkAnswer(answer){
 
     document.getElementById("streak").innerHTML =
     "🔥 Streak: " + streak;
+
+    let accuracy =
+
+Math.round(
+
+(correctAnswers / totalAnswers) * 100
+
+);
+
+document.getElementById("accuracy").innerHTML =
+
+"📊 正答率: " + accuracy + "%";
 }
 
 function nextQuestion(){
