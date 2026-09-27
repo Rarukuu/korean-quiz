@@ -76,18 +76,25 @@ function getQuestion(){
 
     questionCount++;
 
-    if(
-        reviewList.length > 0 &&
-        questionCount % 4 === 0
-    ){
-        return reviewList.shift();
+    for(let i = 0; i < reviewList.length; i++){
+
+        reviewList[i].delay--;
+
+        if(reviewList[i].delay <= 0){
+
+            const reviewQuestion =
+            reviewList[i].question;
+
+            reviewList.splice(i,1);
+
+            return reviewQuestion;
+        }
     }
 
     return quiz[
         Math.floor(Math.random() * quiz.length)
     ];
 }
-
 function loadQuestion(){
     answered = false;
     currentQuestion = getQuestion();
@@ -162,7 +169,10 @@ function checkAnswer(answer){
 
         playWrong();
 
-        reviewList.push(currentQuestion);
+        reviewList.push({
+    question: currentQuestion,
+    delay: 3
+});
 
         document.getElementById("result").innerHTML =
         "❌ 不正解<br>正解: " +
