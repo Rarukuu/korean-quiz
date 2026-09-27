@@ -48,6 +48,7 @@ button{
 }
 
 #result{
+    line-height:1.8;
     font-size:28px;
     margin-top:20px;
     font-weight:bold;
