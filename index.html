@@ -1,253 +1,161 @@
-const quiz = [
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{
-ko:"안녕",
-jp:"こんにちは"
-},
+<title>Korean Quest</title>
 
-{
-ko:"고마워",
-jp:"ありがとう"
-},
+<link rel="stylesheet" href="style.css">
+<script src="questions.js"></script>
 
-{
-ko:"미안해",
-jp:"ごめん"
-},
+</head>
+<body>
 
-{
-ko:"잘 자",
-jp:"おやすみ"
-},
+<div class="container">
 
-{
-ko:"밥 먹었어?",
-jp:"ご飯食べた？"
-},
+<h1>🇰🇷 Korean Quest</h1>
 
-{
-ko:"지금 뭐 해?",
-jp:"今何してる？"
-},
+<div id="level">
+Level 1
+</div>
 
-{
-ko:"어디 가?",
-jp:"どこ行くの？"
-},
+<div id="streak">
+🔥 Streak: 0
+</div>
 
-{
-ko:"진짜?",
-jp:"本当に？"
-},
+<br>
 
-{
-ko:"괜찮아?",
-jp:"大丈夫？"
-},
+<button id="audioBtn" onclick="speakQuestion()">
+🔊 音声を聞く
+</button>
 
-{
-ko:"언제?",
-jp:"いつ？"
-},
+<h2 id="questionText">
+音声を聞いて答えよう
+</h2>
 
-{
-ko:"누구야?",
-jp:"誰？"
-},
+<div id="choices"></div>
 
-{
-ko:"왜?",
-jp:"なぜ？"
-},
+<div id="result"></div>
 
-{
-ko:"좋아",
-jp:"いいね"
-},
+<br>
 
-{
-ko:"싫어",
-jp:"嫌だ"
-},
+<button id="nextBtn" onclick="nextQuestion()">
+➡️ 次の問題
+</button>
 
-{
-ko:"배고파",
-jp:"お腹すいた"
-},
+</div>
 
-{
-ko:"졸려",
-jp:"眠い"
-},
+<script>
 
-{
-ko:"피곤해",
-jp:"疲れた"
-},
+let currentQuestion = null;
+let streak = 0;
 
-{
-ko:"재밌다",
-jp:"面白い"
-},
-
-{
-ko:"축하해",
-jp:"おめでとう"
-},
-
-{
-ko:"화이팅",
-jp:"頑張って"
-},
-
-{
-ko:"오늘",
-jp:"今日"
-},
-
-{
-ko:"내일",
-jp:"明日"
-},
-
-{
-ko:"어제",
-jp:"昨日"
-},
-
-{
-ko:"학교",
-jp:"学校"
-},
-
-{
-ko:"친구",
-jp:"友達"
-},
-
-{
-ko:"운동",
-jp:"運動"
-},
-
-{
-ko:"테니스",
-jp:"テニス"
-},
-
-{
-ko:"물",
-jp:"水"
-},
-
-{
-ko:"커피",
-jp:"コーヒー"
-},
-
-{
-ko:"음식",
-jp:"食べ物"
-},
-
-{
-ko:"집",
-jp:"家"
-},
-
-{
-ko:"버스",
-jp:"バス"
-},
-
-{
-ko:"지하철",
-jp:"地下鉄"
-},
-
-{
-ko:"비행기",
-jp:"飛行機"
-},
-
-{
-ko:"공부",
-jp:"勉強"
-},
-
-{
-ko:"한국어",
-jp:"韓国語"
-},
-
-{
-ko:"일본어",
-jp:"日本語"
-},
-
-{
-ko:"영어",
-jp:"英語"
-},
-
-{
-ko:"좋아요",
-jp:"好きです"
-},
-
-{
-ko:"사랑해",
-jp:"愛してる"
-},
-
-{
-ko:"맛있어",
-jp:"おいしい"
-},
-
-{
-ko:"비싸",
-jp:"高い"
-},
-
-{
-ko:"싸다",
-jp:"安い"
-},
-
-{
-ko:"빠르다",
-jp:"速い"
-},
-
-{
-ko:"느리다",
-jp:"遅い"
-},
-
-{
-ko:"덥다",
-jp:"暑い"
-},
-
-{
-ko:"춥다",
-jp:"寒い"
-},
-
-{
-ko:"행복해",
-jp:"幸せ"
-},
-
-{
-ko:"슬퍼",
-jp:"悲しい"
-},
-
-{
-ko:"괜찮아요",
-jp:"大丈夫です"
+function shuffle(array){
+    return array.sort(() => Math.random() - 0.5);
 }
 
-];
+function getRandomQuestion(){
+    return quiz[Math.floor(Math.random() * quiz.length)];
+}
+
+function loadQuestion(){
+
+    currentQuestion = getRandomQuestion();
+
+    document.getElementById("questionText").innerHTML =
+    "🔊 音声を聞いて答えよう";
+
+    document.getElementById("result").innerHTML = "";
+
+    const choicesDiv =
+    document.getElementById("choices");
+
+    choicesDiv.innerHTML = "";
+
+    let answers = [currentQuestion.jp];
+
+    while(answers.length < 4){
+
+        const randomAnswer =
+        quiz[Math.floor(Math.random()*quiz.length)].jp;
+
+        if(!answers.includes(randomAnswer)){
+            answers.push(randomAnswer);
+        }
+    }
+
+    answers = shuffle(answers);
+
+    answers.forEach(answer => {
+
+        const btn =
+        document.createElement("button");
+
+        btn.className = "choice";
+
+        btn.innerText = answer;
+
+        btn.onclick = () =>
+        checkAnswer(answer);
+
+        choicesDiv.appendChild(btn);
+
+    });
+
+}
+
+function checkAnswer(answer){
+
+    if(answer === currentQuestion.jp){
+
+        streak++;
+
+        document.getElementById("result").innerHTML =
+        "⭕ 正解！";
+
+    }else{
+
+        streak = 0;
+
+        document.getElementById("result").innerHTML =
+        "❌ 不正解<br>正解: " +
+        currentQuestion.jp;
+
+    }
+
+    document.getElementById("streak").innerHTML =
+    "🔥 Streak: " + streak;
+
+}
+
+function nextQuestion(){
+
+    loadQuestion();
+
+}
+
+function speakQuestion(){
+
+    if(!currentQuestion) return;
+
+    speechSynthesis.cancel();
+
+    const utterance =
+    new SpeechSynthesisUtterance(
+        currentQuestion.ko
+    );
+
+    utterance.lang = "ko-KR";
+    utterance.rate = 0.9;
+
+    speechSynthesis.speak(utterance);
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
