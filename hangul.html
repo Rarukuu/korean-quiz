@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#eff8f5">
+  <title>Korean Quiz - ハングルの読み方表</title>
+  <link rel="stylesheet" href="style.css?v=hangul-chart-20260928">
+  <script src="hangul.js?v=hangul-chart-20260928" defer></script>
+</head>
+<body>
+  <main class="container hangul-container">
+    <nav class="quiz-navigation" aria-label="ページ移動">
+      <a class="home-link" href="index.html">← ホームへ</a>
+    </nav>
+    <h1>🔤 ハングルの読み方表</h1>
+    <p class="hangul-intro">韓国語の文字を、字母名・ローマ字・日本語に近い音で確認できます。</p>
+    <p class="hangul-note">日本語の音は目安です。韓国語には日本語と完全に同じ音がないものがあり、文字の位置によっても発音が変わります。</p>
+
+    <section aria-labelledby="consonantsTitle">
+      <h2 id="consonantsTitle">子音</h2>
+      <div id="basicConsonants" class="hangul-chart-grid"></div>
+    </section>
+    <section aria-labelledby="tenseTitle">
+      <h2 id="tenseTitle">濃音（強く詰める子音）</h2>
+      <div id="tenseConsonants" class="hangul-chart-grid"></div>
+    </section>
+    <section aria-labelledby="vowelsTitle">
+      <h2 id="vowelsTitle">母音</h2>
+      <div id="basicVowels" class="hangul-chart-grid"></div>
+    </section>
+    <section aria-labelledby="compoundTitle">
+      <h2 id="compoundTitle">複合母音</h2>
+      <div id="compoundVowels" class="hangul-chart-grid"></div>
+    </section>
+
+    <section class="batchim-section" aria-labelledby="batchimTitle">
+      <h2 id="batchimTitle">パッチム（最後の子音）の音</h2>
+      <p>音節の最後に来る子音は、文字の名前どおりに読まないことがあります。まずは次の7つの音に整理して覚えましょう。</p>
+      <div id="batchimTable" class="hangul-table-wrap"></div>
+    </section>
+
+    <section class="syllable-section" aria-labelledby="syllableTitle">
+      <h2 id="syllableTitle">文字の組み立て方</h2>
+      <p>ハングルは子音と母音を組み合わせて、四角い「音節ブロック」を作ります。</p>
+      <div id="syllableExamples" class="syllable-example-grid"></div>
+    </section>
+
+    <a class="start-quiz-button hangul-start-button" href="quiz.html">ハングルのクイズに挑戦 →</a>
+  </main>
+</body>
+</html>

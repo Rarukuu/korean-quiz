@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Korean Quiz - クイズ</title>
+  <link rel="stylesheet" href="style.css?v=quick-next-20261005">
+  <script src="audio.js?v=female-audio-20261007" defer></script>
+  <script src="questions.js?v=conversation-word-l1-20261007" defer></script>
+  <script src="app.js?v=format-matched-choices-20261006" defer></script>
+</head>
+<body>
+  <main class="container quiz-container">
+    <nav class="quiz-navigation" aria-label="ページ移動">
+      <a class="home-link" href="index.html">← ホームへ</a>
+    </nav>
+    <h1>🇰🇷 Korean Quiz</h1>
+
+    <nav class="screen-nav" aria-label="クイズメニュー">
+      <button type="button" class="screen-tab active" id="quizTab" aria-pressed="true" aria-controls="quizScreen" data-screen-target="quizScreen">クイズ</button>
+      <button type="button" class="screen-tab" id="progressTab" aria-pressed="false" aria-controls="progressScreen" data-screen-target="progressScreen">学習記録</button>
+      <button type="button" class="screen-tab" id="speakingTab" aria-pressed="false" aria-controls="speakingScreen" data-screen-target="speakingScreen">スピーキング</button>
+      <button type="button" class="screen-tab" id="settingsTab" aria-pressed="false" aria-controls="settingsScreen" data-screen-target="settingsScreen">設定</button>
+    </nav>
+
+    <section id="quizScreen" class="app-screen" aria-labelledby="quizTab">
+      <div class="stats quiz-stats" aria-live="polite">
+        <div id="level">🎯 Level 1</div>
+        <div id="streak">🔥 Streak: 0</div>
+        <div id="accuracy">📊 正答率: 0%</div>
+      </div>
+      <section class="current-level-goal" aria-live="polite" aria-labelledby="currentLevelGoalTitle">
+        <strong id="currentLevelGoalTitle">このレベルでできること</strong>
+        <p id="currentLevelGoal"></p>
+      </section>
+      <p id="instructions" class="instructions">韓国語を聞いて、正しい日本語の意味を選んでください。韓国語の文字も表示されます。</p>
+      <p id="questionHelp" class="subtle">韓国語を聞いて、正しい日本語の意味を選んでください。</p>
+      <p id="questionTimer" class="question-timer" role="status" aria-live="polite" hidden></p>
+      <div id="koreanText" class="korean-word" lang="ko" aria-live="polite">안녕</div>
+      <button id="audioBtn" type="button">🔊 韓国語を聞く</button>
+      <p id="audioNotice" class="notice" role="status" aria-live="polite"></p>
+      <h2 id="questionText">音声を聞いて答えよう</h2>
+      <div id="choices"></div>
+      <button id="unknownAnswerBtn" class="secondary unknown-answer-button" type="button" hidden>わからなかった</button>
+      <div id="result" role="status" aria-live="polite"></div>
+      <button id="quickNextBtn" class="quick-next-button" type="button" hidden>➡️ 次の問題へ</button>
+      <section id="explanationPanel" class="explanation-panel" aria-label="回答の解説" hidden>
+        <div class="answer-line">
+          <h3>韓国語</h3>
+          <p id="answerKorean" lang="ko"></p>
+          <p id="answerRomanization" class="romanization" aria-label="ローマ字での読み方"></p>
+        </div>
+        <div class="answer-line">
+          <h3 id="answerJapaneseLabel">日本語</h3>
+          <p id="answerJapanese"></p>
+        </div>
+        <div id="hangulMeaningLine" class="answer-line" hidden>
+          <h3>日本語の意味</h3>
+          <p id="answerMeaning"></p>
+        </div>
+      <div class="word-breakdown">
+        <h3>単語・表現の意味</h3>
+        <ul id="explanationList"></ul>
+      </div>
+      <div id="choiceExplanations" class="word-breakdown choice-explanations" hidden>
+        <h3>韓国語の選択肢・読み方・意味</h3>
+        <ul id="choiceExplanationList"></ul>
+      </div>
+      </section>
+      <p id="emptyState" class="empty-state" role="status" hidden></p>
+      <button id="allCategoriesBtn" class="secondary" type="button" hidden>全体から出題する</button>
+      <div class="question-navigation-controls" aria-label="問題の移動">
+        <button id="previousQuestionBtn" class="secondary" type="button" disabled>← 前の回答</button>
+        <button id="nextBtn" type="button" disabled>➡️ 次の問題</button>
+      </div>
+    </section>
+
+    <section id="progressScreen" class="app-screen progress-screen" aria-labelledby="progressTab" hidden>
+      <h2>学習記録</h2>
+      <p id="mastered" class="progress-highlight">📚 習得した単語・表現: 0</p>
+      <p id="levelProgress" class="subtle"></p>
+      <section class="weak-word-section" aria-labelledby="weakWordHeading">
+        <h3 id="weakWordHeading">苦手単語</h3>
+        <p class="subtle">間違えた単語を1つずつ確認できます。</p>
+        <button id="toggleWeakWords" class="secondary" type="button">苦手単語を見る</button>
+        <div id="weakWords" class="weak-words weak-word-card" hidden>
+          <p id="weakWordPosition" class="subtle"></p>
+          <p id="weakWordItem" lang="ko" class="weak-word-item"></p>
+          <p id="weakWordCount" class="subtle"></p>
+          <div class="weak-word-controls">
+            <button id="previousWeakWord" class="secondary" type="button">← 前へ</button>
+            <button id="nextWeakWord" class="secondary" type="button">次へ →</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="speakingScreen" class="app-screen speaking-screen" aria-labelledby="speakingTab" hidden>
+      <h2>韓国語スピーキング</h2>
+      <p class="subtle">韓国語で話すと、認識した文字・ローマ字の読み方・日本語の意味を表示します。音声認識はGoogle Chromeで利用できます。マイクの許可とインターネット接続が必要です。文全体の翻訳には設定でAPIキーを登録してください。</p>
+      <button id="speakingMicButton" class="speaking-mic" type="button" aria-pressed="false">🎙️ 話してみる</button>
+      <p id="speakingStatus" class="subtle" role="status" aria-live="polite">マイクを押して韓国語で話してください。</p>
+      <section class="speaking-result" aria-labelledby="transcriptHeading">
+        <h3 id="transcriptHeading">認識した韓国語</h3>
+        <p id="speechTranscript" lang="ko">まだ音声を認識していません。</p>
+        <p id="speechRomanization" class="romanization"></p>
+      </section>
+      <section class="speaking-result" aria-labelledby="spokenMeaningHeading">
+        <h3 id="spokenMeaningHeading">日本語の意味</h3>
+        <p id="spokenMeaning">ここに意味を表示します。</p>
+        <ul id="spokenBreakdown" class="spoken-breakdown"></ul>
+      </section>
+      <button id="clearSpeakingButton" class="secondary" type="button">結果を消す</button>
+    </section>
+
+    <section id="settingsScreen" class="app-screen settings-screen" aria-labelledby="settingsTab" hidden>
+      <h2>学習設定</h2>
+      <div class="filters">
+        <label for="directionSelect">出題方向</label>
+        <select id="directionSelect">
+          <option value="ko-jp">韓国語 → 日本語</option>
+          <option value="jp-ko">日本語 → 韓国語</option>
+        </select>
+        <label for="categorySelect">カテゴリ</label>
+        <select id="categorySelect">
+          <option value="all">全体</option>
+          <option value="greeting">挨拶</option>
+          <option value="people">人</option>
+          <option value="school">学校</option>
+          <option value="food">食べ物</option>
+          <option value="daily">日常</option>
+          <option value="emotion">感情</option>
+          <option value="conversation">会話</option>
+          <option value="hangul">ハングル</option>
+        </select>
+        <label for="formatSelect">出題形式</label>
+        <select id="formatSelect" aria-describedby="formatHelp">
+          <option value="all">単語＋会話</option>
+          <option value="word">単語</option>
+          <option value="conversation">会話・短文</option>
+        </select>
+        <label for="levelSelect">レベル</label>
+        <select id="levelSelect" aria-describedby="formatHelp"></select>
+        <label for="hangulTimeLimitSelect">ハングル問題の制限時間</label>
+        <select id="hangulTimeLimitSelect" aria-describedby="hangulTimerHelp">
+          <option value="5">5秒（時間切れで不正解）</option>
+          <option value="0">時間無制限</option>
+        </select>
+      </div>
+      <p id="formatHelp" class="subtle">Level 1・2は基礎、Level 3は会話、Level 4・5は応用表現です。正答率80%以上を保ち、一定数回答すると次のレベルが解放されます。</p>
+      <p id="hangulTimerHelp" class="subtle">この設定はハングルの読み方クイズに適用されます。</p>
+
+      <details id="ttsSettings" class="voice-settings">
+        <summary>AI音声・翻訳の設定</summary>
+        <p>自然なAI音声にはText-to-Speech API、登録外の文の翻訳にはCloud Translation APIを有効にしてください。<a href="https://cloud.google.com/text-to-speech/docs/create-audio-text-client-libraries" target="_blank" rel="noopener noreferrer">音声設定ガイド</a>・<a href="https://docs.cloud.google.com/translate/docs/reference/rest/v2/translate" target="_blank" rel="noopener noreferrer">翻訳API</a>（利用に課金設定が必要な場合があります）。APIキーはGoogleへ直接送信され、このページを開いている間だけ保持します。</p>
+        <label for="ttsApiKey">Google Cloud APIキー（音声・翻訳）</label>
+        <input id="ttsApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="APIキーを入力">
+        <button id="saveTtsKey" class="secondary" type="button">このページで使う</button>
+        <p id="ttsSettingsStatus" class="subtle" role="status" aria-live="polite">APIキー未設定時は端末の韓国語音声を使い、翻訳はクイズ内の登録表現に限られます。</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

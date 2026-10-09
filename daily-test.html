@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f5">
+  <title>Korean Quiz - 今日の50問テスト</title>
+  <link rel="stylesheet" href="style.css?v=daily-test-20261007">
+  <script src="audio.js?v=female-audio-20261007" defer></script>
+  <script src="questions.js?v=conversation-word-l1-20261007" defer></script>
+  <script src="daily-test.js?v=daily-test-20261007" defer></script>
+</head>
+<body>
+  <main class="container daily-test-container">
+    <nav class="quiz-navigation" aria-label="ページ移動">
+      <a class="home-link" href="index.html">← ホームへ</a>
+    </nav>
+    <p class="home-eyebrow">毎日少しずつ、成長を記録。</p>
+    <h1>📝 今日の50問テスト</h1>
+    <p class="daily-test-intro">1日1回のチャレンジです。今日の結果は保存され、同じテスト形式の前回スコアと比べられます。</p>
+
+    <section id="dailyTestSetup" class="daily-test-panel" aria-labelledby="testSetupHeading">
+      <h2 id="testSetupHeading">テスト形式を選ぶ</h2>
+      <label for="dailyTestMode">今日のテスト</label>
+      <select id="dailyTestMode">
+        <option value="ko-jp">韓国語 → 日本語（単語）</option>
+        <option value="jp-ko">日本語 → 韓国語（単語）</option>
+        <option value="listening">リスニング（韓国語を聞いて日本語を選ぶ）</option>
+      </select>
+      <p class="subtle">全カテゴリーから単語を50問出題します。7カテゴリーをできるだけ均等に含めます。制限時間はありません。</p>
+      <p id="dailyTestAvailability" class="daily-test-status" role="status" aria-live="polite"></p>
+      <button id="startDailyTest" type="button">今日のテストを始める</button>
+    </section>
+
+    <section id="dailyTestQuestionPanel" class="daily-test-panel" aria-labelledby="dailyQuestionHeading" hidden>
+      <div class="daily-test-progress-head">
+        <p id="dailyQuestionCount" class="daily-question-count"></p>
+        <p id="dailyCategoryLabel" class="daily-category-label"></p>
+      </div>
+      <div class="daily-progress-track" role="progressbar" aria-label="テストの進み具合" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" id="dailyProgressTrack">
+        <span id="dailyProgressBar"></span>
+      </div>
+      <p id="dailyModeInstruction" class="subtle daily-mode-instruction"></p>
+      <div id="dailyQuestionPrompt" class="daily-test-prompt" lang="ko" aria-live="polite"></div>
+      <button id="dailyAudioButton" class="secondary daily-audio-button" type="button" hidden>🔊 韓国語を聞く</button>
+      <p id="dailyAudioStatus" class="subtle daily-audio-status" role="status" aria-live="polite"></p>
+      <div id="dailyChoices" class="daily-test-choices" role="group" aria-labelledby="dailyQuestionCount"></div>
+      <div id="dailyAnswerFeedback" class="daily-answer-feedback" role="status" aria-live="polite" hidden></div>
+      <button id="dailyContinueButton" class="daily-continue-button" type="button" hidden>次の問題へ →</button>
+    </section>
+
+    <section id="dailyTestResult" class="daily-test-panel daily-result-panel" aria-labelledby="dailyResultHeading" hidden>
+      <h2 id="dailyResultHeading">テスト結果</h2>
+      <p id="dailyScore" class="daily-score"></p>
+      <p id="dailyComparison" class="daily-comparison"></p>
+      <h3>カテゴリー別</h3>
+      <ul id="dailyCategoryBreakdown" class="daily-category-breakdown"></ul>
+      <p id="dailyResultDate" class="subtle"></p>
+      <a class="start-quiz-button daily-result-home-link" href="index.html">ホームへ戻る</a>
+    </section>
+
+    <p class="home-footnote">受験状況と結果はこのブラウザに保存されます。同じ日に別のブラウザや端末から受けると、記録は共有されません。</p>
+  </main>
+</body>
+</html>

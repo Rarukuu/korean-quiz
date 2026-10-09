@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f5">
+  <title>Korean Quiz - 物語で学ぶ</title>
+  <link rel="stylesheet" href="style.css?v=question-history-20260928">
+  <script src="audio.js?v=female-audio-20261007" defer></script>
+  <script src="stories.js?v=animated-story-scene-20260928" defer></script>
+</head>
+<body>
+  <main class="container stories-container">
+    <nav class="quiz-navigation" aria-label="ページ移動">
+      <a class="home-link" href="index.html">← ホームへ</a>
+    </nav>
+    <h1>📖 物語で韓国語</h1>
+    <p class="stories-intro">会話を聞いて、表現を学び、登場人物になって話してみましょう。</p>
+
+    <section id="storyLibrary" class="story-library" aria-labelledby="storyLibraryTitle">
+      <h2 id="storyLibraryTitle">物語を選ぶ</h2>
+      <div id="storyCards" class="story-cards"></div>
+    </section>
+
+    <section id="storyLesson" class="story-lesson" aria-labelledby="storyTitle" hidden>
+      <button id="backToStories" class="secondary story-back" type="button">← 物語一覧へ</button>
+      <div class="story-heading">
+        <div id="storyIllustration" class="story-illustration" aria-hidden="true"></div>
+        <div><p id="storyScene" class="story-scene"></p><h2 id="storyTitle"></h2><p id="storySummary" class="subtle"></p></div>
+      </div>
+      <section id="storyStage" class="story-stage" aria-label="会話シーン">
+        <div class="story-stage-scenery" aria-hidden="true"><span id="storyStageProp">☕</span></div>
+        <div class="story-stage-actors" aria-hidden="true">
+          <div id="storyActorA" class="story-actor"><span class="story-actor-face">🙂</span><span id="storyActorALabel"></span></div>
+          <div class="story-stage-dialogue">
+            <p id="storyStageSpeaker" class="story-stage-speaker"></p>
+            <p id="storyStageKorean" class="story-stage-korean" lang="ko">会話を再生すると、ここにセリフが表示されます。</p>
+            <p id="storyStageRomanization" class="romanization"></p>
+            <p id="storyStageJapanese" class="story-stage-japanese"></p>
+          </div>
+          <div id="storyActorB" class="story-actor"><span class="story-actor-face">🙂</span><span id="storyActorBLabel"></span></div>
+        </div>
+        <p class="story-stage-caption">セリフに合わせて話す人が動きます</p>
+      </section>
+      <nav class="story-tabs" aria-label="学習方法">
+        <button type="button" class="story-tab active" data-view="storyView">会話を見る</button>
+        <button type="button" class="story-tab" data-view="storyQuizView">内容クイズ</button>
+        <button type="button" class="story-tab" data-view="roleplayView">会話練習</button>
+      </nav>
+
+      <section id="storyView" class="story-view story-panel" aria-label="会話">
+        <p class="subtle">セリフごとに音声と意味を確認できます。スピーカーを押すと1行、下のボタンで物語全体を再生します。</p>
+        <ol id="storyLines" class="story-lines"></ol>
+        <div class="story-audio-controls">
+          <button id="playFullStory" type="button">🔊 物語を通して聞く</button>
+          <button id="stopStoryAudio" class="secondary" type="button" disabled>■ 停止</button>
+        </div>
+        <p id="storyAudioStatus" class="subtle" role="status" aria-live="polite"></p>
+      </section>
+
+      <section id="storyQuizView" class="story-view story-panel" aria-label="内容クイズ" hidden>
+        <p id="storyQuizProgress" class="story-progress"></p>
+        <h3 id="storyQuizPrompt"></h3>
+        <div id="storyQuizChoices" class="story-quiz-choices"></div>
+        <p id="storyQuizFeedback" role="status" aria-live="polite"></p>
+        <button id="storyQuizNext" type="button" hidden>次の問題 →</button>
+        <button id="storyQuizRestart" class="secondary" type="button" hidden>もう一度クイズ</button>
+      </section>
+
+      <section id="roleplayView" class="story-view story-panel" aria-label="会話練習" hidden>
+        <p class="subtle">練習する役を選びます。相手のセリフを聞いたら、韓国語で返してみましょう。</p>
+        <div class="role-select" role="group" aria-label="練習する役">
+          <button id="roleAButton" class="secondary" type="button"></button>
+          <button id="roleBButton" class="secondary" type="button"></button>
+        </div>
+        <p id="roleplayProgress" class="story-progress"></p>
+        <div class="roleplay-card">
+          <p id="roleplaySpeaker" class="roleplay-speaker"></p>
+          <p id="roleplayPrompt" class="roleplay-prompt"></p>
+          <p id="roleplayKorean" class="roleplay-korean" lang="ko"></p>
+          <p id="roleplayRomanization" class="romanization"></p>
+          <p id="roleplayJapanese" class="roleplay-japanese"></p>
+          <details id="roleplayAnswerDetails" class="roleplay-answer" hidden>
+            <summary>自分のセリフを見る</summary>
+            <p id="roleplayExpected" lang="ko"></p>
+            <p id="roleplayExpectedRomanization" class="romanization"></p>
+          </details>
+        </div>
+        <div class="roleplay-actions">
+          <button id="roleplayAudioButton" type="button" hidden>🔊 相手のセリフを聞く</button>
+          <button id="roleplayMicButton" class="speaking-mic" type="button" hidden>🎙️ 韓国語で答える</button>
+          <button id="roleplayNext" class="secondary" type="button">次へ →</button>
+          <button id="roleplayRestart" class="secondary" type="button" hidden>最初から練習</button>
+        </div>
+        <p id="roleplayTranscript" class="roleplay-transcript" lang="ko"></p>
+        <p id="roleplayStatus" class="subtle" role="status" aria-live="polite"></p>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
