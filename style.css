@@ -941,9 +941,13 @@ button:disabled{
     .home-container{
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 1fr) auto;
+        align-content: stretch;
+        gap: 12px;
+        box-sizing: border-box;
+        min-height: calc(100svh - 20px);
         margin-top: 0;
-        padding: 16px 12px;
+        padding: 22px 16px;
     }
     .home-eyebrow,
     .home-container > h1,
@@ -956,10 +960,10 @@ button:disabled{
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        min-height: 108px;
+        min-height: 142px;
         box-sizing: border-box;
         margin: 0;
-        padding: 12px 10px;
+        padding: 16px 12px;
     }
     .home-feature h2{ margin: 0 0 8px; font-size: 1rem; line-height: 1.3; }
     .home-feature > p,
@@ -974,8 +978,8 @@ button:disabled{
     .home-footnote{ margin: 2px 0 0; font-size: .78rem; }
     .hangul-start-button{ margin: auto 0 0; }
     .daily-test-panel{ padding:16px 12px; }
-    .daily-test-choices{ grid-template-columns:1fr; gap:8px; }
-    .daily-test-choice{ min-height:52px; }
+    .daily-test-choices{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .daily-test-choice{ min-height:58px; padding:10px 8px; font-size:.98rem; }
     .daily-category-breakdown{ grid-template-columns:1fr; }
     .level-roadmap-list{ grid-template-columns: 1fr; gap: 8px; }
     .level-roadmap-list li:last-child{ grid-column: auto; }
@@ -993,6 +997,25 @@ button:disabled{
     .choice-row .choice-answer{ padding: 13px 12px; }
     .korean-word{ margin-top: 14px; font-size: clamp(2.7rem, 15vw, 4rem); }
     .explanation-panel{ padding: 14px 12px; }
+    .explanation-panel h3{ margin-bottom:3px; }
+    .answer-line + .answer-line,
+    .word-breakdown{ margin-top:10px; }
+    .answer-line p{ font-size:1rem; line-height:1.45; }
+    .answer-line p[lang="ko"]{ font-size:1.25rem; }
+    .word-breakdown li{ padding:7px 8px; margin-top:5px; line-height:1.4; }
+    .quick-next-button{
+        position:static;
+        transform:none;
+        width:100%;
+        margin:8px 0;
+        padding:11px 12px;
+        box-shadow:none;
+    }
+    body.has-quick-next{ padding-bottom:10px; }
+    .current-level-goal{ margin:6px 0 8px; padding:8px 10px; }
+    .current-level-goal p{ margin-top:2px; line-height:1.4; }
+    #questionHelp{ margin:8px auto; }
+    .instructions{ margin:4px 0 8px; }
     .story-card{ grid-template-columns: 48px 1fr; gap: 4px 10px; padding: 12px; }
     .story-card-icon{ width: 46px; height: 46px; font-size: 1.7rem; }
     .story-card h3{ font-size: 1rem; }
