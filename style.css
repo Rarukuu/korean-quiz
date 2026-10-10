@@ -929,6 +929,31 @@ button:disabled{
 .syllable-example small{ color: #626071; line-height: 1.4; }
 .hangul-start-button{ display: block; max-width: 360px; margin: 24px auto 4px; text-align: center; }
 
+/* Travel-story learning path */
+.journey-home{ max-width:680px; }
+.journey-home > h1{ color:#244b83; }
+.journey-start{ margin:18px 0 0; text-align:left; }
+.journey-start > h2{ margin:0 0 12px; color:#244b83; font-size:1.15rem; }
+.journey-story-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.journey-story-card{ display:grid; grid-template-columns:48px minmax(0,1fr) 20px; align-items:center; gap:10px; min-height:104px; padding:14px; border:1px solid #d8e4f3; border-radius:14px; background:#f7faff; color:#244b83; text-align:left; text-decoration:none; transition:transform .15s ease,box-shadow .15s ease; }
+.journey-story-card:hover{ transform:translateY(-2px); box-shadow:0 5px 15px #244b8318; }
+.journey-story-card.cafe{ background:#fff8ed; border-color:#f0dfbd; color:#815a1c; }
+.journey-story-card.introduce{ background:#f3f8ff; }
+.journey-story-icon{ display:grid; place-items:center; width:46px; height:46px; border-radius:13px; background:#fff; font-size:1.8rem; }
+.journey-story-text{ display:grid; gap:5px; }
+.journey-story-text strong{ font-size:1rem; }
+.journey-story-text small{ color:#596575; font-size:.84rem; line-height:1.45; }
+.journey-story-arrow{ justify-self:end; font-size:1.2rem; font-weight:700; }
+.journey-flow{ margin:14px 0 0; padding:12px; border-radius:10px; background:#f4f7fa; color:#52677f; font-size:.9rem; line-height:1.6; text-align:center; }
+.journey-more{ margin:16px 0 0; text-align:left; }
+.journey-more summary{ cursor:pointer; color:#52677f; font-weight:700; }
+.journey-more-links{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:10px; }
+.journey-more-links a{ padding:10px 8px; border:1px solid #e0e7ee; border-radius:9px; color:#315f8d; font-size:.85rem; line-height:1.4; text-align:center; text-decoration:none; }
+.story-learning-path{ margin:8px 0 10px; padding:9px 10px; border-radius:9px; background:#f2f8f4; color:#52677f; font-size:.84rem; line-height:1.5; }
+.story-vocabulary-audio{ display:block; width:min(100%,320px); margin:0 auto 10px; background:#e8f0ff; color:#244b83; }
+#storyVocabularyFeedback{ white-space:pre-line; line-height:1.6; }
+#storyVocabularyNext,#storyVocabularyRestart,#storyQuizRoleplay{ width:100%; max-width:none; margin:8px 0; }
+
 .question-timer{ display:inline-block; min-width: 120px; margin: 4px auto 10px; padding: 8px 14px; border-radius: 999px; background:#fff2d8; color:#8c5710; font-size:1.1rem; font-weight:700; }
 .question-timer[hidden]{ display:none; }
 .unknown-answer-button{ display:block; width:auto; min-width: 190px; margin: 12px auto; background:#f3f5f7; color:#4c5965; border:1px solid #d5dce2; }
@@ -949,6 +974,24 @@ button:disabled{
         margin-top: 0;
         padding: 22px 16px;
     }
+    .journey-home{
+        grid-template-columns:minmax(0,1fr);
+        grid-template-rows:auto auto auto minmax(0,1fr) auto auto;
+        gap:10px;
+        padding:20px 14px;
+        text-align:center;
+    }
+    .journey-home > h1{ font-size:1.5rem; line-height:1.25; }
+    .journey-home .home-intro{ display:block; margin:0; font-size:.92rem; line-height:1.55; }
+    .journey-start{ grid-column:1/-1; display:flex; flex-direction:column; justify-content:center; margin:0; }
+    .journey-story-grid{ grid-template-columns:1fr; gap:10px; }
+    .journey-story-card{ min-height:94px; padding:12px; }
+    .journey-story-text strong{ font-size:1.02rem; }
+    .journey-flow{ margin:10px 0 0; padding:9px 7px; font-size:.78rem; }
+    .journey-more{ grid-column:1/-1; margin:0; }
+    .journey-more-links{ grid-template-columns:1fr; }
+    .journey-more-links a{ padding:9px; }
+    .journey-home .home-footnote{ margin:0; font-size:.75rem; }
     .home-eyebrow,
     .home-container > h1,
     .home-intro,
@@ -1035,6 +1078,10 @@ button:disabled{
     .story-card-icon{ width: 46px; height: 46px; font-size: 1.7rem; }
     .story-card h3{ font-size: 1rem; }
     .story-tab{ padding: 9px 2px; font-size: 12px; }
+    .story-tabs{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:3px; padding:4px; }
+    .story-learning-path{ font-size:.75rem; }
+    #storyVocabularyPrompt{ min-height:2.5em; margin:8px 0; color:#183b68; font-size:1.2rem; line-height:1.4; text-align:center; }
+    .story-vocabulary-audio{ margin-bottom:8px; padding:10px; }
     .story-heading{ align-items: flex-start; gap: 10px; }
     .story-illustration{ flex-basis: 54px; width: 54px; height: 54px; border-radius: 14px; font-size: 2rem; }
     .story-stage{ padding: 12px 9px; }

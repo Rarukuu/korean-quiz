@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f5f5f5">
   <title>Korean Quiz - 物語で学ぶ</title>
-  <link rel="stylesheet" href="style.css?v=question-history-20260928">
+  <link rel="stylesheet" href="style.css?v=story-first-20261010">
   <script src="audio.js?v=female-audio-20261007" defer></script>
-  <script src="stories.js?v=chrome-speech-20261010" defer></script>
+  <script src="stories.js?v=story-first-20261010" defer></script>
 </head>
 <body>
   <main class="container stories-container">
@@ -15,7 +15,7 @@
       <a class="home-link" href="index.html">← ホームへ</a>
     </nav>
     <h1>📖 物語で韓国語</h1>
-    <p class="stories-intro">会話を聞いて、表現を学び、登場人物になって話してみましょう。</p>
+    <p class="stories-intro">韓国旅行の場面を物語で予習。会話を聞き、出てきた単語を解いて、最後に自分でも話してみましょう。</p>
 
     <section id="storyLibrary" class="story-library" aria-labelledby="storyLibraryTitle">
       <h2 id="storyLibraryTitle">物語を選ぶ</h2>
@@ -42,10 +42,12 @@
         </div>
         <p class="story-stage-caption">セリフに合わせて話す人が動きます</p>
       </section>
+      <p class="story-learning-path">おすすめの順番：<strong>会話を聞く</strong> → <strong>単語クイズ</strong> → <strong>内容クイズ</strong> → <strong>会話練習</strong></p>
       <nav class="story-tabs" aria-label="学習方法">
-        <button type="button" class="story-tab active" data-view="storyView">会話を見る</button>
-        <button type="button" class="story-tab" data-view="storyQuizView">内容クイズ</button>
-        <button type="button" class="story-tab" data-view="roleplayView">会話練習</button>
+        <button type="button" class="story-tab active" data-view="storyView" aria-pressed="true">① 会話</button>
+        <button type="button" class="story-tab" data-view="storyVocabularyView" aria-pressed="false">② 単語</button>
+        <button type="button" class="story-tab" data-view="storyQuizView" aria-pressed="false">③ 内容</button>
+        <button type="button" class="story-tab" data-view="roleplayView" aria-pressed="false">④ 練習</button>
       </nav>
 
       <section id="storyView" class="story-view story-panel" aria-label="会話">
@@ -58,6 +60,17 @@
         <p id="storyAudioStatus" class="subtle" role="status" aria-live="polite"></p>
       </section>
 
+      <section id="storyVocabularyView" class="story-view story-panel" aria-label="物語の単語クイズ" hidden>
+        <p class="subtle">この物語に出てきた単語だけを練習します。音も聞きながら意味を選びましょう。</p>
+        <p id="storyVocabularyProgress" class="story-progress"></p>
+        <h3 id="storyVocabularyPrompt"></h3>
+        <button id="storyVocabularyAudio" class="story-vocabulary-audio" type="button">🔊 単語を聞く</button>
+        <div id="storyVocabularyChoices" class="story-quiz-choices"></div>
+        <p id="storyVocabularyFeedback" role="status" aria-live="polite"></p>
+        <button id="storyVocabularyNext" type="button" hidden>次の単語 →</button>
+        <button id="storyVocabularyRestart" class="secondary" type="button" hidden>単語をもう一度</button>
+      </section>
+
       <section id="storyQuizView" class="story-view story-panel" aria-label="内容クイズ" hidden>
         <p id="storyQuizProgress" class="story-progress"></p>
         <h3 id="storyQuizPrompt"></h3>
@@ -65,6 +78,7 @@
         <p id="storyQuizFeedback" role="status" aria-live="polite"></p>
         <button id="storyQuizNext" type="button" hidden>次の問題 →</button>
         <button id="storyQuizRestart" class="secondary" type="button" hidden>もう一度クイズ</button>
+        <button id="storyQuizRoleplay" type="button" hidden>会話練習へ →</button>
       </section>
 
       <section id="roleplayView" class="story-view story-panel" aria-label="会話練習" hidden>

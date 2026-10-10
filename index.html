@@ -4,58 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f5f5f5">
-  <title>Korean Quiz - ホーム</title>
-  <link rel="stylesheet" href="style.css?v=quiz-clean-20261009">
+  <title>Korean Trip Stories - 韓国旅行の前に韓国語を予習</title>
+  <link rel="stylesheet" href="style.css?v=story-first-20261010">
 </head>
 <body>
-  <main class="container home-container">
-    <p class="home-eyebrow">韓国語を、楽しく一歩ずつ。</p>
-    <h1>🇰🇷 Korean Quiz</h1>
-    <p class="home-intro">音声やハングルを使って、単語から会話まで気軽に学習しましょう。</p>
+  <main class="container home-container journey-home">
+    <p class="home-eyebrow">🇰🇷 韓国旅行の前に</p>
+    <h1>物語で韓国語を予習しよう</h1>
+    <p class="home-intro">旅行の場面を、会話・単語クイズ・内容クイズ・会話練習でひとつずつ学べます。</p>
 
-    <section class="home-feature" aria-labelledby="home-feature-title">
-      <h2 id="home-feature-title">クイズで韓国語を学ぼう</h2>
-      <p>音声を聞いて意味を選び、答えの後に単語や文法の解説を確認できます。</p>
-      <ul class="home-feature-list">
-        <li>単語・会話形式の問題</li>
-        <li>Level 1〜5とハングル学習</li>
-        <li>復習、正答率、連続正解の記録</li>
-      </ul>
-      <a class="start-quiz-button" href="quiz.html">クイズを始める <span aria-hidden="true">→</span></a>
+    <section class="journey-start" aria-labelledby="journey-start-title">
+      <h2 id="journey-start-title">練習する場面を選ぶ</h2>
+      <div class="journey-story-grid">
+        <a class="journey-story-card cafe" href="stories.html?story=cafe-order">
+          <span class="journey-story-icon" aria-hidden="true">☕</span>
+          <span class="journey-story-text"><strong>カフェで注文</strong><small>飲み物を頼んで、店内で飲む会話</small></span>
+          <span class="journey-story-arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="journey-story-card introduce" href="stories.html?story=first-introduction">
+          <span class="journey-story-icon" aria-hidden="true">👋</span>
+          <span class="journey-story-text"><strong>初めての自己紹介</strong><small>あいさつをして、お互いのことを話す会話</small></span>
+          <span class="journey-story-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+      <p class="journey-flow"><strong>会話を聞く</strong> → <strong>単語を練習</strong> → <strong>内容クイズ</strong> → <strong>自分で話す</strong></p>
     </section>
 
-    <section class="home-feature daily-test-home-feature" aria-labelledby="daily-test-title">
-      <h2 id="daily-test-title">今日の50問テスト</h2>
-      <p>毎日1回のテストで、前回からの成長を記録しましょう。単語テストとリスニングから選べます。</p>
-      <a class="start-quiz-button daily-test-start-button" href="daily-test.html">テストを受ける <span aria-hidden="true">→</span></a>
-    </section>
-
-    <section class="home-feature level-roadmap" aria-labelledby="level-roadmap-title">
-      <h2 id="level-roadmap-title">レベルごとの到達目標</h2>
-      <p>各レベルで学ぶ内容の目安です。次のレベルは、累計の回答数と正答率に応じて解放されます。</p>
-      <ol class="level-roadmap-list">
-        <li><span>Level 1 · 基礎</span><p>ハングルの基本音と、挨拶・身近な単語が分かる。</p></li>
-        <li><span>Level 2 · 表現</span><p>丁寧な自己紹介や、買い物・注文で使う短い表現が分かる。</p></li>
-        <li><span>Level 3 · 会話</span><p>短い質問と返事を理解し、簡単なやりとりができる。</p></li>
-        <li><span>Level 4 · 応用</span><p>お願い・理由・予定などを含む表現を理解できる。</p></li>
-        <li><span>Level 5 · 実践</span><p>日常の場面で、意図や気持ちをより具体的に伝える表現が分かる。</p></li>
-      </ol>
-      <p class="level-roadmap-note">学習の目安であり、資格試験や公式な語学レベルを示すものではありません。</p>
-    </section>
-
-    <section class="home-feature story-home-feature" aria-labelledby="story-feature-title">
-      <h2 id="story-feature-title">物語で会話を練習しよう</h2>
-      <p>短い会話を聞いて、意味を学び、登場人物になって話してみましょう。</p>
-      <a class="start-quiz-button story-start-button" href="stories.html">物語を選ぶ <span aria-hidden="true">→</span></a>
-    </section>
-
-    <section class="home-feature hangul-home-feature" aria-labelledby="hangul-feature-title">
-      <h2 id="hangul-feature-title">ハングルの読み方を確認</h2>
-      <p>子音・母音・パッチムの一覧表で、文字と発音の基本を見られます。</p>
-      <a class="start-quiz-button hangul-start-button" href="hangul.html">ハングル表を見る <span aria-hidden="true">→</span></a>
-    </section>
-
-    <p class="home-footnote">学習記録はこのブラウザに保存されます。</p>
+    <details class="journey-more">
+      <summary>ほかの練習を見る</summary>
+      <div class="journey-more-links">
+        <a href="quiz.html">単語・ハングルのまとめクイズ</a>
+        <a href="daily-test.html">今日の50問テスト</a>
+        <a href="hangul.html">ハングルの読み方一覧</a>
+      </div>
+    </details>
+    <p class="home-footnote">まずはひとつの物語を練習して、韓国旅行で使う表現を身につけましょう。</p>
   </main>
 </body>
 </html>

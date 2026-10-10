@@ -51,6 +51,16 @@
         { prompt: "「한 잔 주세요」はどんな意味？", choices: ["一杯ください", "二人です", "お会計をお願いします", "持ち帰ります"], answer: 0 },
         { prompt: "お客さんはどこで飲みますか？", choices: ["家で", "ここ（店内）で", "学校で", "外で"], answer: 1 },
         { prompt: "「카드로 계산할게요」は何を伝えていますか？", choices: ["カードで払います", "小さいサイズにします", "水をください", "持ち帰ります"], answer: 0 }
+      ],
+      vocabulary: [
+        { ko: "뭐", jp: "何", reading: "mwo", exampleKo: "뭐 드릴까요?", exampleJp: "何になさいますか？" },
+        { ko: "한 잔", jp: "一杯", reading: "han jan", exampleKo: "아메리카노 한 잔 주세요.", exampleJp: "アメリカーノを一杯ください。" },
+        { ko: "주세요", jp: "ください", reading: "juseyo", exampleKo: "한 잔 주세요.", exampleJp: "一杯ください。" },
+        { ko: "매장에서", jp: "店内で", reading: "maejang-eseo", exampleKo: "매장에서 드시나요?", exampleJp: "店内で召し上がりますか？" },
+        { ko: "여기서", jp: "ここで", reading: "yeogiseo", exampleKo: "여기서 마실게요.", exampleJp: "ここで飲みます。" },
+        { ko: "작은 사이즈", jp: "小さいサイズ", reading: "jageun saijeu", exampleKo: "작은 사이즈로 주세요.", exampleJp: "小さいサイズでください。" },
+        { ko: "카드로", jp: "カードで", reading: "kadeuro", exampleKo: "카드로 계산할게요.", exampleJp: "カードで支払います。" },
+        { ko: "계산할게요", jp: "支払います", reading: "gyesanhalgeyo", exampleKo: "카드로 계산할게요.", exampleJp: "カードで支払います。" }
       ]
     },
     {
@@ -76,6 +86,16 @@
         { prompt: "ミンジさんは何を勉強していますか？", choices: ["日本語", "英語", "韓国語", "中国語"], answer: 2 },
         { prompt: "ユキさんはどこの人ですか？", choices: ["韓国人", "日本人", "アメリカ人", "中国人"], answer: 1 },
         { prompt: "「저도」はどんな意味？", choices: ["私も", "あなたは", "どこの国", "本当ですか"], answer: 0 }
+      ],
+      vocabulary: [
+        { ko: "저는", jp: "私は", reading: "jeoneun", exampleKo: "저는 유키예요.", exampleJp: "私はユキです。" },
+        { ko: "만나서", jp: "会って", reading: "mannaseo", exampleKo: "만나서 반가워요.", exampleJp: "お会いできてうれしいです。" },
+        { ko: "반가워요", jp: "うれしいです／よろしくお願いします", reading: "bangawoyo", exampleKo: "만나서 반가워요.", exampleJp: "お会いできてうれしいです。" },
+        { ko: "저도", jp: "私も", reading: "jeodo", exampleKo: "저도 반가워요.", exampleJp: "私もうれしいです。" },
+        { ko: "어느 나라", jp: "どこの国", reading: "eoneu nara", exampleKo: "어느 나라 사람이에요?", exampleJp: "どこの国の人ですか？" },
+        { ko: "일본 사람", jp: "日本人", reading: "ilbon saram", exampleKo: "저는 일본 사람이에요.", exampleJp: "私は日本人です。" },
+        { ko: "한국어", jp: "韓国語", reading: "hangugeo", exampleKo: "한국어를 공부해요?", exampleJp: "韓国語を勉強していますか？" },
+        { ko: "공부해요", jp: "勉強しています", reading: "gongbuhaeyo", exampleKo: "한국어를 공부해요.", exampleJp: "韓国語を勉強しています。" }
       ]
     }
   ];
@@ -84,6 +104,9 @@
   let activeStory = null;
   let quizIndex = 0;
   let quizScore = 0;
+  let vocabularyIndex = 0;
+  let vocabularyScore = 0;
+  let vocabularyDeck = [];
   let activeRole = "B";
   let roleplayIndex = 0;
   let playSequenceId = 0;
@@ -115,6 +138,7 @@
     $("roleAButton").textContent = `A役：${story.roles.A}`;
     $("roleBButton").textContent = `B役：${story.roles.B}`;
     renderStoryLines();
+    resetVocabularyQuiz();
     resetQuiz();
     activeRole = "B";
     roleplayIndex = 0;
@@ -137,7 +161,7 @@
       summary.textContent = story.summary;
       const meta = document.createElement("p");
       meta.className = "story-card-meta";
-      meta.textContent = `${story.lines.length}セリフ · 会話音声・内容クイズ・役割練習`;
+      meta.textContent = `${story.lines.length}セリフ・単語${story.vocabulary.length}語 · 会話・単語・内容・会話練習`;
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = "この物語を学ぶ →";
@@ -274,6 +298,7 @@
     $("storyQuizFeedback").textContent = "";
     $("storyQuizNext").hidden = true;
     $("storyQuizRestart").hidden = true;
+    $("storyQuizRoleplay").hidden = true;
     renderQuizQuestion();
   }
 
@@ -283,10 +308,12 @@
     choices.replaceChildren();
     $("storyQuizFeedback").textContent = "";
     $("storyQuizNext").hidden = true;
+    $("storyQuizRoleplay").hidden = true;
     if (quizIndex >= quiz.length) {
       $("storyQuizProgress").textContent = "クイズ終了";
       $("storyQuizPrompt").textContent = `結果：${quizScore} / ${quiz.length}問正解`;
       $("storyQuizRestart").hidden = false;
+      $("storyQuizRoleplay").hidden = false;
       return;
     }
     const question = quiz[quizIndex];
@@ -311,6 +338,73 @@
       });
       choices.appendChild(button);
     });
+  }
+
+  function resetVocabularyQuiz() {
+    vocabularyIndex = 0;
+    vocabularyScore = 0;
+    vocabularyDeck = activeStory.vocabulary.slice().sort(() => Math.random() - 0.5);
+    $("storyVocabularyFeedback").textContent = "";
+    $("storyVocabularyRestart").hidden = true;
+    $("storyVocabularyNext").hidden = true;
+    renderVocabularyQuestion();
+  }
+
+  function renderVocabularyQuestion() {
+    const choices = $("storyVocabularyChoices");
+    choices.replaceChildren();
+    $("storyVocabularyFeedback").textContent = "";
+    $("storyVocabularyAudio").hidden = false;
+    $("storyVocabularyNext").hidden = true;
+    $("storyVocabularyRestart").hidden = true;
+
+    if (vocabularyIndex >= vocabularyDeck.length) {
+      $("storyVocabularyProgress").textContent = "単語クイズ終了";
+      $("storyVocabularyPrompt").textContent = `結果：${vocabularyScore} / ${vocabularyDeck.length}語正解`;
+      $("storyVocabularyAudio").hidden = true;
+      $("storyVocabularyRestart").hidden = false;
+      $("storyVocabularyNext").textContent = "内容クイズへ →";
+      $("storyVocabularyNext").hidden = false;
+      return;
+    }
+
+    const word = vocabularyDeck[vocabularyIndex];
+    const otherWords = activeStory.vocabulary.filter((entry) => entry.ko !== word.ko)
+      .sort(() => Math.random() - 0.5).slice(0, 3);
+    const options = [word, ...otherWords].sort(() => Math.random() - 0.5);
+    const correctIndex = options.findIndex((entry) => entry.ko === word.ko);
+    $("storyVocabularyProgress").textContent = `単語 ${vocabularyIndex + 1} / ${vocabularyDeck.length}`;
+    $("storyVocabularyPrompt").textContent = `「${word.ko}」の意味は？`;
+    $("storyVocabularyAudio").dataset.word = word.ko;
+
+    options.forEach((option, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "story-quiz-choice";
+      button.textContent = option.jp;
+      button.addEventListener("click", () => {
+        choices.querySelectorAll("button").forEach((item) => { item.disabled = true; });
+        const correct = index === correctIndex;
+        playFeedbackSound(correct);
+        if (correct) vocabularyScore += 1;
+        button.classList.add(correct ? "is-correct" : "is-wrong");
+        if (!correct) choices.children[correctIndex].classList.add("is-correct");
+        $("storyVocabularyFeedback").textContent = `${correct ? "⭕ 正解！" : "❌ 正解は「" + word.jp + "」です。"}\n例：${word.exampleKo}（${word.exampleJp}）`;
+        $("storyVocabularyNext").textContent = "次の単語 →";
+        $("storyVocabularyNext").hidden = false;
+      });
+      choices.appendChild(button);
+    });
+  }
+
+  async function playVocabularyWord() {
+    const word = $("storyVocabularyAudio").dataset.word;
+    if (!word) return;
+    try {
+      await window.KoreanAudio.speak(word, { rate: 0.82 });
+    } catch (error) {
+      $("storyVocabularyFeedback").textContent = window.KoreanAudio?.messageFor(error) || "単語の音声を再生できませんでした。";
+    }
   }
 
   function isChrome() {
@@ -456,6 +550,17 @@
   $("stopStoryAudio").addEventListener("click", stopStoryAudio);
   $("storyQuizNext").addEventListener("click", () => { quizIndex += 1; renderQuizQuestion(); });
   $("storyQuizRestart").addEventListener("click", resetQuiz);
+  $("storyQuizRoleplay").addEventListener("click", () => showView("roleplayView"));
+  $("storyVocabularyAudio").addEventListener("click", playVocabularyWord);
+  $("storyVocabularyNext").addEventListener("click", () => {
+    if (vocabularyIndex < vocabularyDeck.length) {
+      vocabularyIndex += 1;
+      renderVocabularyQuestion();
+    } else {
+      showView("storyQuizView");
+    }
+  });
+  $("storyVocabularyRestart").addEventListener("click", resetVocabularyQuiz);
   $("roleAButton").addEventListener("click", () => {
     stopRoleplayRecognition();
     activeRole = "A";
@@ -480,4 +585,7 @@
   $("roleplayRestart").addEventListener("click", () => { roleplayIndex = 0; renderRoleplay(); });
 
   renderStoryLibrary();
+  const requestedStory = new URLSearchParams(window.location.search).get("story");
+  const requestedStoryData = stories.find((story) => story.id === requestedStory);
+  if (requestedStoryData) openStory(requestedStoryData);
 })();
