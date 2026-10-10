@@ -1016,6 +1016,18 @@ button:disabled{
     .current-level-goal p{ margin-top:2px; line-height:1.4; }
     #questionHelp{ margin:8px auto; }
     .instructions{ margin:4px 0 8px; }
+    /* 問題にすぐ集中できるよう、進捗や説明はスマホのクイズ画面では隠す */
+    .current-level-goal,
+    .quiz-stats,
+    .stats,
+    .instructions,
+    #questionHelp{ display:none !important; }
+    .screen-nav{ margin:0 0 6px; padding:2px 0; }
+    .korean-word{ margin:8px 0 4px; }
+    #audioBtn{ margin:4px auto 8px; }
+    #questionText{ margin:6px 0; }
+    .choice-row .choice-answer,
+    .choice-row .choice-audio{ margin:4px 0; }
     .story-card{ grid-template-columns: 48px 1fr; gap: 4px 10px; padding: 12px; }
     .story-card-icon{ width: 46px; height: 46px; font-size: 1.7rem; }
     .story-card h3{ font-size: 1rem; }
