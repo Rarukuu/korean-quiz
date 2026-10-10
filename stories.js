@@ -1,6 +1,34 @@
 (function () {
   "use strict";
 
+  let feedbackAudioContext = null;
+
+  function playFeedbackSound(correct) {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!feedbackAudioContext || feedbackAudioContext.state === "closed") feedbackAudioContext = new AudioContextClass();
+      if (feedbackAudioContext.state === "suspended") void feedbackAudioContext.resume();
+      const notes = correct ? [[784, 0], [1046, 0.1]] : [[330, 0], [247, 0.12]];
+      notes.forEach(([frequency, delay]) => {
+        const oscillator = feedbackAudioContext.createOscillator();
+        const gain = feedbackAudioContext.createGain();
+        const start = feedbackAudioContext.currentTime + delay;
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.12, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+        oscillator.connect(gain);
+        gain.connect(feedbackAudioContext.destination);
+        oscillator.start(start);
+        oscillator.stop(start + 0.19);
+      });
+    } catch (error) {
+      console.warn("回答音を再生できませんでした。", error);
+    }
+  }
+
   const stories = [
     {
       id: "cafe-order",
@@ -272,6 +300,7 @@
       button.addEventListener("click", () => {
         document.querySelectorAll(".story-quiz-choice").forEach((option) => { option.disabled = true; });
         const correct = index === question.answer;
+        playFeedbackSound(correct);
         if (correct) quizScore += 1;
         button.classList.add(correct ? "is-correct" : "is-wrong");
         if (!correct) choices.children[question.answer].classList.add("is-correct");

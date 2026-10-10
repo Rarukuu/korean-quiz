@@ -584,6 +584,35 @@
     }
   }
 
+  async function playIncorrectSound() {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!state.soundContext || state.soundContext.state === "closed") {
+        state.soundContext = new AudioContextClass();
+      }
+      const context = state.soundContext;
+      if (context.state === "suspended") await context.resume();
+      const startAt = context.currentTime;
+      [330, 247].forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const noteStart = startAt + index * 0.1;
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, noteStart);
+        gain.gain.setValueAtTime(0.0001, noteStart);
+        gain.gain.exponentialRampToValueAtTime(0.12, noteStart + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.17);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(noteStart);
+        oscillator.stop(noteStart + 0.18);
+      });
+    } catch (error) {
+      console.warn("不正解音を再生できませんでした。", error);
+    }
+  }
+
   function getSpeechText(playAnswerSound = false) {
     const hangulAnswerSound = state.currentQuestion.category === "hangul" && (playAnswerSound || state.answered);
     return hangulAnswerSound
@@ -957,13 +986,13 @@
       state.correctAnswers += 1;
       stats.correct += 1;
       if (state.isReviewQuestion) state.reviewQueue = state.reviewQueue.filter((entry) => entry.question.ko !== question.ko);
-      if (!japaneseToKorean) void playCorrectSound();
+      void playCorrectSound();
       renderAnswerExplanation(question, correct);
     } else {
       state.streak = 0;
       stats.wrong += 1;
       queueForReview(question);
-      if (!japaneseToKorean) void playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+      void playIncorrectSound();
       renderAnswerExplanation(question, correct);
     }
     if (timedOut) $("result").textContent = "⏰ 時間切れ！不正解";
