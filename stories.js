@@ -394,31 +394,50 @@
     const recognition = new Recognition();
     activeRecognition = recognition;
     recognition.lang = "ko-KR";
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.continuous = false;
+    recognition.maxAlternatives = 5;
+    let heardText = "";
     $("roleplayMicButton").disabled = true;
     $("roleplayStatus").textContent = "聞き取っています。韓国語でセリフを話してください。";
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.trim();
-      $("roleplayTranscript").textContent = transcript;
-      const match = normalizeSpeech(transcript) === normalizeSpeech(expected.ko);
+      let finalText = "";
+      let interimText = "";
+      for (let i = 0; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        let best = result[0];
+        for (let candidateIndex = 1; candidateIndex < result.length; candidateIndex += 1) {
+          if ((result[candidateIndex].confidence || 0) > (best.confidence || 0)) best = result[candidateIndex];
+        }
+        if (result.isFinal) finalText += best.transcript;
+        else interimText += best.transcript;
+      }
+      heardText = finalText.trim() || interimText.trim() || heardText;
+      $("roleplayTranscript").textContent = `${finalText}${interimText}`.trim() || heardText;
+      if (!finalText && !interimText) return;
+      const match = normalizeSpeech(heardText) === normalizeSpeech(expected.ko);
       $("roleplayStatus").textContent = match
         ? "よく言えました！模範フレーズと見比べて、次のセリフへ進みましょう。"
-        : "声を認識しました。読み方や模範フレーズを確認して、もう一度練習できます。";
+        : "聞き取った内容を表示しています。少しゆっくり話すと、認識しやすくなります。";
       $("roleplayAnswerDetails").open = true;
     };
     recognition.onerror = (event) => {
       const messages = {
         "not-allowed": "マイクの使用を許可してください。",
+        "service-not-allowed": "Chromeの音声認識サービスを利用できません。ネット接続とChromeの設定を確認してください。",
         "audio-capture": "マイクが見つかりません。接続と設定を確認してください。",
         network: "音声認識サービスに接続できません。ネット接続を確認してください。",
-        "no-speech": "声を検出できませんでした。マイクに近づいて話してください。"
+        "no-speech": "声を検出できませんでした。マイクに近づき、少しゆっくり話してください。",
+        "language-not-supported": "このChrome環境では韓国語の音声認識を利用できません。Chromeを最新版に更新してください。"
       };
       $("roleplayStatus").textContent = messages[event.error] || "音声を認識できませんでした。もう一度お試しください。";
     };
     recognition.onend = () => {
       activeRecognition = null;
       $("roleplayMicButton").disabled = !isChrome();
+      if (!heardText && $("roleplayStatus").textContent.includes("聞き取っています")) {
+        $("roleplayStatus").textContent = "音声を認識できませんでした。静かな場所で、マイクに近づいて話してください。";
+      }
     };
     try {
       recognition.start();

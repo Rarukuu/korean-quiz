@@ -827,6 +827,7 @@
     recognition.lang = "ko-KR";
     recognition.interimResults = true;
     recognition.continuous = false;
+    recognition.maxAlternatives = 5;
     recognition.onstart = () => {
       translationRequestId += 1;
       isRecognitionStarting = false;
@@ -853,11 +854,16 @@
       let interimText = "";
       for (let i = 0; i < event.results.length; i += 1) {
         const result = event.results[i];
-        if (result.isFinal) finalText += result[0].transcript;
-        else interimText += result[0].transcript;
+        let best = result[0];
+        for (let candidateIndex = 1; candidateIndex < result.length; candidateIndex += 1) {
+          if ((result[candidateIndex].confidence || 0) > (best.confidence || 0)) best = result[candidateIndex];
+        }
+        if (result.isFinal) finalText += best.transcript;
+        else interimText += best.transcript;
       }
-      recognizedKorean = finalText.trim();
-      const shownText = `${finalText}${interimText}`.trim();
+      /* Chrome may end a short utterance before marking its last result final. */
+      recognizedKorean = finalText.trim() || interimText.trim() || recognizedKorean;
+      const shownText = `${finalText}${interimText}`.trim() || recognizedKorean;
       $("speechTranscript").textContent = shownText || "聞き取り中…";
       $("speechRomanization").textContent = recognizedKorean
         ? `読み方: ${romanizeKorean(recognizedKorean)}` : "";
@@ -867,10 +873,10 @@
       isRecognitionStarting = false;
       const messages = {
         "not-allowed": "マイクが許可されていません。ブラウザのサイト設定でマイクを許可してください。",
-        "service-not-allowed": "ブラウザの音声認識サービスが利用できません。ネット接続とブラウザ設定を確認してください。",
         "audio-capture": "マイクが見つかりません。マイクの接続とOSのマイク設定を確認してください。",
         network: "音声認識サービスに接続できません。インターネット接続を確認してください。",
         "no-speech": "声を検出できませんでした。マイクに近づいて、もう一度話してください。",
+        "service-not-allowed": "Chromeの音声認識サービスを利用できません。ネット接続とChromeの設定を確認してください。",
         "language-not-supported": "このChrome環境では韓国語の音声認識を利用できません。Chromeを最新版に更新してください。",
         aborted: "音声認識を停止しました。もう一度話すにはマイクを押してください。"
       };
