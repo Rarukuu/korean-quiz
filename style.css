@@ -1017,6 +1017,9 @@ button:disabled{
     #questionHelp{ margin:8px auto; }
     .instructions{ margin:4px 0 8px; }
     /* 問題にすぐ集中できるよう、進捗や説明はスマホのクイズ画面では隠す */
+    /* quizScreen の先頭2枠は「Level/正答率」と「このレベルでできること」 */
+    #quizScreen > :nth-child(1),
+    #quizScreen > :nth-child(2),
     .current-level-goal,
     .quiz-stats,
     .stats,
