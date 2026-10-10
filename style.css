@@ -939,6 +939,13 @@ button:disabled{
 .journey-story-card:hover{ transform:translateY(-2px); box-shadow:0 5px 15px #244b8318; }
 .journey-story-card.cafe{ background:#fff8ed; border-color:#f0dfbd; color:#815a1c; }
 .journey-story-card.introduce{ background:#f3f8ff; }
+.journey-story-card.restaurant{ background:#f4faf3; border-color:#d7e8d3; color:#37643a; }
+.journey-all-stories{ margin:10px 0 0; text-align:center; font-weight:700; }
+.journey-all-stories a{ color:#244b83; }
+.story-card-locked{ opacity:.68; background:#f3f4f6; }
+.story-card-locked .story-card-icon{ filter:grayscale(1); }
+.story-card-locked button:disabled{ background:#828a96; cursor:not-allowed; box-shadow:none; }
+.story-card-complete{ border-color:#86c79b; background:#f1fbf3; }
 .journey-story-icon{ display:grid; place-items:center; width:46px; height:46px; border-radius:13px; background:#fff; font-size:1.8rem; }
 .journey-story-text{ display:grid; gap:5px; }
 .journey-story-text strong{ font-size:1rem; }

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f5f5f5">
   <title>Korean Quiz - 物語で学ぶ</title>
-  <link rel="stylesheet" href="style.css?v=story-first-20261010">
+  <link rel="stylesheet" href="style.css?v=story-unlock-20261010">
   <script src="audio.js?v=female-audio-20261007" defer></script>
-  <script src="stories.js?v=story-first-20261010" defer></script>
+  <script src="stories.js?v=story-unlock-20261010" defer></script>
 </head>
 <body>
   <main class="container stories-container">
@@ -15,7 +15,7 @@
       <a class="home-link" href="index.html">← ホームへ</a>
     </nav>
     <h1>📖 物語で韓国語</h1>
-    <p class="stories-intro">韓国旅行の場面を物語で予習。会話を聞き、出てきた単語を解いて、最後に自分でも話してみましょう。</p>
+    <p class="stories-intro">全10話。最初の3話はすぐに練習できます。単語クイズを全問正解し、会話の全セリフをマイクで言えるとクリア。次の物語が解放されます。</p>
 
     <section id="storyLibrary" class="story-library" aria-labelledby="storyLibraryTitle">
       <h2 id="storyLibraryTitle">物語を選ぶ</h2>
@@ -42,7 +42,7 @@
         </div>
         <p class="story-stage-caption">セリフに合わせて話す人が動きます</p>
       </section>
-      <p class="story-learning-path">おすすめの順番：<strong>会話を聞く</strong> → <strong>単語クイズ</strong> → <strong>内容クイズ</strong> → <strong>会話練習</strong></p>
+      <p class="story-learning-path">クリア条件：<strong>単語クイズ全問正解</strong> ＋ <strong>全セリフを声に出す</strong></p>
       <nav class="story-tabs" aria-label="学習方法">
         <button type="button" class="story-tab active" data-view="storyView" aria-pressed="true">① 会話</button>
         <button type="button" class="story-tab" data-view="storyVocabularyView" aria-pressed="false">② 単語</button>
@@ -82,8 +82,8 @@
       </section>
 
       <section id="roleplayView" class="story-view story-panel" aria-label="会話練習" hidden>
-        <p class="subtle">練習する役を選びます。相手のセリフを聞いたら、韓国語で返してみましょう。</p>
-        <div class="role-select" role="group" aria-label="練習する役">
+        <p class="subtle">お手本の音声を聞き、意味を見て韓国語で言ってみましょう。マイクが聞き取ったセリフはクリアとして記録されます。</p>
+        <div class="role-select" role="group" aria-label="練習する役" hidden>
           <button id="roleAButton" class="secondary" type="button"></button>
           <button id="roleBButton" class="secondary" type="button"></button>
         </div>
@@ -95,7 +95,7 @@
           <p id="roleplayRomanization" class="romanization"></p>
           <p id="roleplayJapanese" class="roleplay-japanese"></p>
           <details id="roleplayAnswerDetails" class="roleplay-answer" hidden>
-            <summary>自分のセリフを見る</summary>
+            <summary>お手本のセリフを見る</summary>
             <p id="roleplayExpected" lang="ko"></p>
             <p id="roleplayExpectedRomanization" class="romanization"></p>
           </details>
