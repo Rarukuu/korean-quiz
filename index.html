@@ -1,50 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f5f5f5">
-  <title>Korean Trip Stories - 韓国旅行の前に韓国語を予習</title>
-  <link rel="stylesheet" href="style.css?v=story-unlock-20261010">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff8ef">
+  <title>Korean Journey — 物語で旅する韓国語</title>
+  <link rel="stylesheet" href="journey.css?v=journey-mvp-20261027">
+  <script src="audio.js?v=female-audio-20261007" defer></script>
+  <script src="journey-data.js?v=journey-episodes-20261027" defer></script>
+  <script src="journey.js?v=journey-mvp-20261027" defer></script>
 </head>
 <body>
-  <main class="container home-container journey-home">
-    <p class="home-eyebrow">🇰🇷 韓国旅行の前に</p>
-    <h1>物語で韓国語を予習しよう</h1>
-    <p class="home-intro">全10話。最初の3話から始めて、単語と発話の練習をクリアしながら次の物語を開いていきます。</p>
+  <main class="journey-app">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="ホーム">🇰🇷 <span>Korean Journey</span></a>
+      <nav aria-label="メニュー">
+        <button class="nav-button active" data-screen="homeScreen">旅のマップ</button>
+        <button class="nav-button" data-screen="albumScreen">旅の記録</button>
+      </nav>
+    </header>
 
-    <section class="journey-start" aria-labelledby="journey-start-title">
-      <h2 id="journey-start-title">練習する場面を選ぶ</h2>
-      <div class="journey-story-grid">
-        <a class="journey-story-card cafe" href="stories.html?story=cafe-order">
-          <span class="journey-story-icon" aria-hidden="true">☕</span>
-          <span class="journey-story-text"><strong>カフェで注文</strong><small>飲み物を頼んで、店内で飲む会話</small></span>
-          <span class="journey-story-arrow" aria-hidden="true">→</span>
-        </a>
-        <a class="journey-story-card introduce" href="stories.html?story=first-introduction">
-          <span class="journey-story-icon" aria-hidden="true">👋</span>
-          <span class="journey-story-text"><strong>初めての自己紹介</strong><small>あいさつをして、お互いのことを話す会話</small></span>
-          <span class="journey-story-arrow" aria-hidden="true">→</span>
-        </a>
-        <a class="journey-story-card restaurant" href="stories.html?story=restaurant-order">
-          <span class="journey-story-icon" aria-hidden="true">🍲</span>
-          <span class="journey-story-text"><strong>レストランで注文</strong><small>人数を伝えて、料理と会計を頼む会話</small></span>
-          <span class="journey-story-arrow" aria-hidden="true">→</span>
-        </a>
-      </div>
-      <p class="journey-flow"><strong>単語全問正解</strong> ＋ <strong>会話を全セリフ発話</strong>で次の物語が解放</p>
-      <p class="journey-all-stories"><a href="stories.html">物語一覧と解放状況を見る →</a></p>
+    <section id="homeScreen" class="screen">
+      <section class="hero">
+        <p class="eyebrow">LEARN · PLAY · TRAVEL</p>
+        <h1>物語で学んで、<br>韓国で使ってみよう。</h1>
+        <p>会話を聞く、意味をつかむ、自分で返す。小さな一歩が、旅先のひと言につながります。</p>
+        <div class="progress-card">
+          <div class="progress-label"><strong>あなたの旅</strong><span id="progressText">0 / 10 話クリア</span></div>
+          <div class="progress-track"><span id="progressFill"></span></div>
+          <p id="nextGoal">最初の物語から始めましょう。</p>
+        </div>
+      </section>
+
+      <section class="map-section">
+        <div class="section-heading"><div><p class="eyebrow">STORY MAP</p><h2>初級の物語</h2></div><span class="pill">まずは10話</span></div>
+        <div id="storyMap" class="story-map"></div>
+      </section>
+
+      <section class="future-levels">
+        <article><span>🧭</span><div><strong>中級</strong><p>物語 11–20 · これから追加</p></div><span class="lock">🔒</span></article>
+        <article><span>🌟</span><div><strong>上級</strong><p>物語 21–30 · これから追加</p></div><span class="lock">🔒</span></article>
+      </section>
+
+      <section class="tool-links">
+        <div><p class="eyebrow">MORE PRACTICE</p><h2>いつもの練習も続けられます</h2></div>
+        <div class="tool-link-grid">
+          <a href="quiz.html">単語・会話クイズ <span>→</span></a>
+          <a href="daily-test.html">今日の50問テスト <span>→</span></a>
+          <a href="stories.html">自由な物語・役割練習 <span>→</span></a>
+          <a href="hangul.html">ハングルの読み方表 <span>→</span></a>
+        </div>
+      </section>
     </section>
 
-    <details class="journey-more">
-      <summary>ほかの練習を見る</summary>
-      <div class="journey-more-links">
-        <a href="quiz.html">単語・ハングルのまとめクイズ</a>
-        <a href="daily-test.html">今日の50問テスト</a>
-        <a href="hangul.html">ハングルの読み方一覧</a>
-      </div>
-    </details>
-    <p class="home-footnote">まずはひとつの物語を練習して、韓国旅行で使う表現を身につけましょう。</p>
+    <section id="lessonScreen" class="screen" hidden>
+      <button class="back-button" data-go-home>← 旅のマップ</button>
+      <div id="lessonContent"></div>
+    </section>
+
+    <section id="albumScreen" class="screen" hidden>
+      <button class="back-button" data-go-home>← 旅のマップ</button>
+      <p class="eyebrow">MEMORY ALBUM</p>
+      <h1 class="page-title">旅の記録</h1>
+      <p class="lead">韓国語を使ってみた場所や日付、写真・動画を振り返れます。</p>
+      <div id="albumContent" class="album-grid"></div>
+    </section>
+
+    <footer><p>学習の進み具合と旅の記録は、このブラウザに保存されます。</p><p>言語レベルは学習の目安です。資格試験の公式評価ではありません。</p></footer>
   </main>
 </body>
 </html>
