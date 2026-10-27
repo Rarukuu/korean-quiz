@@ -6,6 +6,13 @@
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const stages = ["物語", "単語", "リスニング", "返答", "声に出す"];
+  const mapStops = [
+    ["☕", "延南洞 · カフェ通り"], ["👋", "弘大 · 語学交流会"],
+    ["🚇", "ソウル駅 · 地下鉄"], ["🍲", "鍾路 · ごはん屋さん"],
+    ["🏪", "明洞 · コンビニ"], ["🏨", "南山 · ホテル"],
+    ["🛍️", "明洞 · ショッピング通り"], ["🚌", "市庁 · バス停"],
+    ["🧭", "北村 · まち歩き"], ["💊", "仁寺洞 · 薬局"]
+  ];
   let progress = loadProgress();
   let activeEpisode = null;
   let questionIndex = 0;
@@ -29,23 +36,28 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function renderHome() {
-    const unlocked = Math.min(10, 3 + progress.cleared.length);
-    $("#progressText").textContent = progress.cleared.length + " / 10 話クリア";
-    $("#progressFill").style.width = Math.min(100, progress.cleared.length * 10) + "%";
-    $("#nextGoal").textContent = progress.cleared.length ? "次の物語が解放されています。続きを学びましょう。" : "最初の物語から始めましょう。";
+    const unlocked = Math.min(EPISODES.length, 3 + progress.cleared.length);
+    const currentIndex = EPISODES.findIndex((ep, index) => index < unlocked && !progress.cleared.includes(ep.id));
+    $("#progressText").textContent = progress.cleared.length + " / " + EPISODES.length + " 話クリア";
+    $("#progressFill").style.width = Math.min(100, progress.cleared.length / Math.max(EPISODES.length, 1) * 100) + "%";
+    $("#nextGoal").textContent = currentIndex >= 0 ? "次の目的地：" + EPISODES[currentIndex].title + " · 場所を選んで出発！" : "初級ルートをすべてクリアしました。旅の記録を振り返りましょう。";
     const map = $("#storyMap"); map.replaceChildren();
     EPISODES.forEach((ep, index) => {
-      const open = index < unlocked, cleared = progress.cleared.includes(ep.id);
-      const card = document.createElement("article"); card.className = "episode-card" + (open ? "" : " is-locked") + (cleared ? " is-cleared" : "");
-      const number = document.createElement("span"); number.className = "episode-number"; number.textContent = String(index + 1).padStart(2, "0");
-      const info = document.createElement("div"); info.className = "episode-info";
-      const level = document.createElement("span"); level.className = "episode-level"; level.textContent = "初級 · " + (cleared ? "クリア済み" : open ? "公開中" : "クリアで解放");
-      const title = document.createElement("h3"); title.textContent = ep.title;
-      const summary = document.createElement("p"); summary.textContent = ep.scene;
-      info.append(level, title, summary);
-      const action = document.createElement("button"); action.className = "episode-action"; action.type = "button"; action.disabled = !open; action.textContent = cleared ? "もう一度" : open ? "学ぶ →" : "🔒";
-      if (open) action.addEventListener("click", () => openEpisode(ep));
-      card.append(number, info, action); map.append(card);
+      const open = index < unlocked, cleared = progress.cleared.includes(ep.id), current = index === currentIndex;
+      const stop = document.createElement("article");
+      stop.className = "map-stop-wrap" + (open ? " is-open" : " is-locked") + (cleared ? " is-cleared" : "") + (current ? " is-current" : "");
+      const button = document.createElement("button"); button.className = "map-stop"; button.type = "button"; button.disabled = !open;
+      button.setAttribute("aria-label", open ? "スポット " + (index + 1) + "、" + ep.title + (cleared ? "、クリア済み。もう一度学ぶ" : "、学習を始める") : "スポット " + (index + 1) + "、" + ep.title + "、前の物語をクリアすると開きます");
+      const marker = document.createElement("span"); marker.className = "stop-marker"; marker.textContent = mapStops[index]?.[0] || "📍";
+      const number = document.createElement("span"); number.className = "stop-number"; number.textContent = String(index + 1).padStart(2, "0");
+      const details = document.createElement("span"); details.className = "stop-details";
+      const location = document.createElement("span"); location.className = "stop-location"; location.textContent = mapStops[index]?.[1] || "ソウルの旅";
+      const title = document.createElement("strong"); title.className = "stop-title"; title.textContent = ep.title;
+      const scene = document.createElement("span"); scene.className = "stop-scene"; scene.textContent = ep.scene;
+      const state = document.createElement("span"); state.className = "stop-state"; state.textContent = cleared ? "✓ 到着済み · もう一度学ぶ" : current ? "次の目的地 · 出発する →" : open ? "開放中 · いつでも出発できます" : "🔒 前の物語をクリアして開放";
+      details.append(location, title, scene, state); button.append(marker, number, details); stop.append(button);
+      if (open) button.addEventListener("click", () => openEpisode(ep));
+      map.append(stop);
     });
   }
   function makeHeading(eyebrow, title, text) {

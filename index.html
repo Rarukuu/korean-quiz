@@ -22,9 +22,9 @@
 
     <section id="homeScreen" class="screen">
       <section class="hero">
-        <p class="eyebrow">LEARN · PLAY · TRAVEL</p>
-        <h1>物語で学んで、<br>韓国で使ってみよう。</h1>
-        <p>会話を聞く、意味をつかむ、自分で返す。小さな一歩が、旅先のひと言につながります。</p>
+        <p class="eyebrow">YOUR KOREAN JOURNEY</p>
+        <h1>物語をクリアして、<br>韓国の街を進もう。</h1>
+        <p>地図の場所を選んで会話に挑戦。聞く、意味をつかむ、返事をする。クリアすると次の場所へ進めます。</p>
         <div class="progress-card">
           <div class="progress-label"><strong>あなたの旅</strong><span id="progressText">0 / 10 話クリア</span></div>
           <div class="progress-track"><span id="progressFill"></span></div>
@@ -32,9 +32,18 @@
         </div>
       </section>
 
-      <section class="map-section">
-        <div class="section-heading"><div><p class="eyebrow">STORY MAP</p><h2>初級の物語</h2></div><span class="pill">まずは10話</span></div>
-        <div id="storyMap" class="story-map"></div>
+      <section class="map-section" aria-labelledby="mapTitle">
+        <div class="section-heading"><div><p class="eyebrow">SEOUL · BEGINNER ROUTE</p><h2 id="mapTitle">ソウルの旅マップ</h2></div><span class="pill">全10スポット</span></div>
+        <p class="map-instruction">開いている場所を選んで出発。会話・単語・リスニング・返答・声に出す練習を進めよう。</p>
+        <div class="map-legend" aria-label="マップの見方"><span><i class="legend-dot current"></i>次の目的地</span><span><i class="legend-dot cleared"></i>到着済み</span><span><i class="legend-dot locked"></i>これから</span></div>
+        <div class="map-landscape">
+          <span class="map-label label-north">北村の路地</span><span class="map-label label-river">漢江</span><span class="map-label label-south">南山のふもと</span>
+          <svg class="route-line" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
+          </svg>
+          <div id="storyMap" class="story-map" aria-label="物語を進めるソウルの旅ルート"></div>
+          <span class="map-sparkle sparkle-one" aria-hidden="true">✦</span><span class="map-sparkle sparkle-two" aria-hidden="true">✦</span>
+        </div>
       </section>
 
       <section class="future-levels">
