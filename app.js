@@ -301,6 +301,16 @@
     });
   }
 
+  function syncMapDirectionButtons() {
+    const pool = mapRouteConfig ? getMapChallengePool(mapRouteConfig) : [];
+    document.querySelectorAll("[data-map-direction]").forEach((button) => {
+      const direction = button.dataset.mapDirection;
+      button.disabled = !mapRouteConfig || !directionHasFourChoices(pool, direction);
+      button.classList.toggle("active", direction === mapRouteConfig?.direction);
+      button.setAttribute("aria-pressed", String(direction === mapRouteConfig?.direction));
+    });
+  }
+
   function readMapChallengeProgress() {
     try {
       const saved = JSON.parse(localStorage.getItem(MAP_CHALLENGE_KEY) || "{}");
@@ -328,6 +338,7 @@
   function prepareMapChallenge(config) {
     mountMapChallengeCard();
     mapRouteConfig = config;
+    syncMapDirectionButtons();
     const pool = getMapChallengePool(config);
     const categoryLabel = categorySelect.options[[...categorySelect.options].findIndex((option) => option.value === config.category)]?.textContent || config.category;
     const isWordRoute = config.route === "word";
@@ -839,7 +850,9 @@
     if (!state.currentQuestion || (state.questionDirection === "jp-ko" && state.currentQuestion.category !== "hangul")) return;
     const requestId = ++speechRequestId;
     const text = getSpeechText(playAnswerSound);
-    if (!cloudTtsApiKey) {
+    // Map questions always use the browser's Korean voice so playback does not
+    // depend on a cloud key, a network request, or a remote TTS service.
+    if (mapChallenge || !cloudTtsApiKey) {
       await playSystemSpeech(text);
       return;
     }
@@ -866,7 +879,7 @@
     window.KoreanAudio?.stop();
     if (activeTtsAudio) activeTtsAudio.pause();
     $("audioNotice").textContent = "韓国語の発音を再生します。続けてもう一度押すと回答します。";
-    if (!cloudTtsApiKey) {
+    if (mapChallenge || !cloudTtsApiKey) {
       const played = await playSystemSpeech(text, { keepNotice: true });
       if (!played) $("audioNotice").textContent = "音声を再生できませんでした。選択肢をもう一度押すと回答できます。";
       return;
@@ -1306,6 +1319,18 @@
     loadQuestion();
   });
   $("startRouteChallenge").addEventListener("click", startMapChallenge);
+  document.querySelectorAll("[data-map-direction]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!mapRouteConfig || button.disabled || button.dataset.mapDirection === mapRouteConfig.direction) return;
+      mapRouteConfig = { ...mapRouteConfig, direction: button.dataset.mapDirection };
+      state.questionDirection = mapRouteConfig.direction;
+      directionSelect.value = state.questionDirection;
+      syncMapDirectionButtons();
+      $("quizRouteNotice").textContent = `${mapRouteConfig.route === "word" ? "単語ルート" : "会話ルート"} · 出題方向を変更しました。最初の問題から始めます。`;
+      window.KoreanAudio?.stop();
+      startMapChallenge();
+    });
+  });
   $("retryRouteChallenge").addEventListener("click", () => {
     if (!mapRouteConfig) return;
     prepareMapChallenge(mapRouteConfig);

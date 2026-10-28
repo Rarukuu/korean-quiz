@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Korean Quiz - クイズ</title>
-  <link rel="stylesheet" href="style.css?v=map-lesson-card-20261027">
-  <script src="audio.js?v=female-audio-20261007" defer></script>
+  <link rel="stylesheet" href="style.css?v=map-quiz-clean-20261027">
+  <script src="audio.js?v=map-audio-fallback-20261027" defer></script>
   <script src="questions.js?v=conversation-word-l1-20261007" defer></script>
-  <script src="app.js?v=map-lesson-card-20261027" defer></script>
+  <script src="app.js?v=map-quiz-clean-20261027" defer></script>
 </head>
 <body>
   <main class="container quiz-container">
@@ -38,6 +38,10 @@
 
     <section id="routeChallengePlay" class="route-challenge-play" hidden aria-label="マップのクイズ">
       <p id="quizRouteNotice" class="quiz-route-notice" role="status"></p>
+      <div id="mapChallengeDirection" class="map-challenge-direction" role="group" aria-label="出題方向">
+        <button type="button" data-map-direction="ko-jp" aria-pressed="true">韓国語 → 日本語</button>
+        <button type="button" data-map-direction="jp-ko" aria-pressed="false">日本語 → 韓国語</button>
+      </div>
       <div id="mapChallengeProgress" class="map-challenge-progress">
         <div><span id="mapChallengeProgressLabel"></span><strong id="mapChallengeScore"></strong></div>
         <div class="map-challenge-progress-track"><span id="mapChallengeProgressFill"></span></div>
@@ -47,7 +51,7 @@
       </section>
     </section>
 
-    <nav class="screen-nav" id="screenNav" aria-label="クイズメニュー">
+    <nav class="screen-nav" id="screenNav" aria-label="クイズメニュー" hidden>
       <button type="button" class="screen-tab active" id="quizTab" aria-pressed="true" aria-controls="quizScreen" data-screen-target="quizScreen">クイズ</button>
       <button type="button" class="screen-tab" id="progressTab" aria-pressed="false" aria-controls="progressScreen" data-screen-target="progressScreen">学習記録</button>
       <button type="button" class="screen-tab" id="speakingTab" aria-pressed="false" aria-controls="speakingScreen" data-screen-target="speakingScreen">スピーキング</button>

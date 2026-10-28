@@ -198,6 +198,7 @@ body{
     padding: 6px 0;
     background: #fff;
 }
+.screen-nav[hidden]{display:none!important}
 
 .screen-tab{
     flex: 1;
@@ -1007,6 +1008,10 @@ body.map-challenge-active>.quiz-container>h1{display:none}
 .map-challenge-progress-track{height:8px;margin-top:10px;overflow:hidden;border-radius:99px;background:#dce5d8}
 .map-challenge-progress-track span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e8ae66,#6cae7b);transition:width .2s}
 .route-challenge-play{padding-top:8px}
+.map-challenge-direction{display:flex;justify-content:center;gap:8px;margin:0 0 12px}
+.map-challenge-direction button{width:auto;min-height:40px;margin:0;padding:8px 13px;border:1px solid #cbdccb;border-radius:999px;background:#fffefa;color:#526858;font-size:.86rem;font-weight:800}
+.map-challenge-direction button.active{border-color:#659777;background:#e7f2e6;color:#326348}
+.map-challenge-direction button:disabled{opacity:.45;cursor:not-allowed}
 .map-question-card{margin:14px 0;padding:clamp(18px,4vw,30px);border:1px solid #d5e5d7;border-radius:24px;background:#fffefa;box-shadow:0 10px 26px #344b7010}
 .map-question-card .quiz-count{margin:0 0 10px;color:#a26a4b;font-size:.88rem;font-weight:850}
 .map-question-card .korean-word{margin:8px 0 16px;color:#283f32;font-size:clamp(2.35rem,9vw,4rem);text-align:center;overflow-wrap:anywhere}
@@ -1031,4 +1036,4 @@ body.map-challenge-active>.quiz-container>h1{display:none}
 body.map-challenge-active .quiz-stats,body.map-challenge-active .current-level-goal,body.map-challenge-active #instructions,body.map-challenge-active #questionHelp{display:none}
 body.map-challenge-active .quiz-stats,body.map-challenge-active .current-level-goal,body.map-challenge-active #instructions,body.map-challenge-active #questionHelp{display:none}
 body.map-challenge-active #quizScreen,body.map-challenge-active #questionNavigationControls{display:none!important}
-@media(max-width:540px){body.map-challenge-active{padding:9px}body.map-challenge-active .quiz-container{padding:16px 14px;border-radius:20px}.map-challenge-intro,.map-challenge-result{margin:12px 0;padding:22px 18px;border-radius:20px}.challenge-result-actions{align-items:stretch;flex-direction:column}.challenge-result-actions>*{width:100%;text-align:center}.map-challenge-progress{padding:11px 12px}.map-question-card #choices.answer-choices{grid-template-columns:1fr;gap:8px}.map-question-card{padding:18px 14px}}
+@media(max-width:540px){body.map-challenge-active{padding:9px}body.map-challenge-active .quiz-container{padding:16px 14px;border-radius:20px}.map-challenge-intro,.map-challenge-result{margin:12px 0;padding:22px 18px;border-radius:20px}.challenge-result-actions{align-items:stretch;flex-direction:column}.challenge-result-actions>*{width:100%;text-align:center}.map-challenge-progress{padding:11px 12px}.map-question-card #choices.answer-choices{grid-template-columns:1fr;gap:8px}.map-question-card{padding:18px 14px}.map-challenge-direction{gap:6px}.map-challenge-direction button{flex:1;padding:8px 6px;font-size:.78rem}}
