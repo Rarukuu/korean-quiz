@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff8ef">
   <title>Korean Journey — 物語で旅する韓国語</title>
-  <link rel="stylesheet" href="journey.css?v=journey-mvp-20261027">
+  <link rel="stylesheet" href="journey.css?v=quiz-maps-20261027">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="journey-data.js?v=journey-episodes-20261027" defer></script>
-  <script src="journey.js?v=journey-mvp-20261027" defer></script>
+  <script src="questions.js?v=quiz-maps-20261027" defer></script>
+  <script src="journey.js?v=quiz-maps-20261027" defer></script>
 </head>
 <body>
   <main class="journey-app">
@@ -23,8 +24,8 @@
     <section id="homeScreen" class="screen">
       <section class="hero">
         <p class="eyebrow">YOUR KOREAN JOURNEY</p>
-        <h1>物語をクリアして、<br>韓国の街を進もう。</h1>
-        <p>地図の場所を選んで会話に挑戦。聞く、意味をつかむ、返事をする。クリアすると次の場所へ進めます。</p>
+        <h1>マップを進みながら、<br>韓国語を身につけよう。</h1>
+        <p>物語、単語、会話。それぞれのルートで場所を選んで挑戦しよう。</p>
         <div class="progress-card">
           <div class="progress-label"><strong>あなたの旅</strong><span id="progressText">0 / 10 話クリア</span></div>
           <div class="progress-track"><span id="progressFill"></span></div>
@@ -32,31 +33,56 @@
         </div>
       </section>
 
-      <section class="map-section" aria-labelledby="mapTitle">
-        <div class="section-heading"><div><p class="eyebrow">SEOUL · BEGINNER ROUTE</p><h2 id="mapTitle">ソウルの旅マップ</h2></div><span class="pill">全10スポット</span></div>
-        <p class="map-instruction">開いている場所を選んで出発。会話・単語・リスニング・返答・声に出す練習を進めよう。</p>
-        <div class="map-legend" aria-label="マップの見方"><span><i class="legend-dot current"></i>次の目的地</span><span><i class="legend-dot cleared"></i>到着済み</span><span><i class="legend-dot locked"></i>これから</span></div>
-        <div class="map-landscape">
-          <span class="map-label label-north">北村の路地</span><span class="map-label label-river">漢江</span><span class="map-label label-south">南山のふもと</span>
-          <svg class="route-line" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
-          </svg>
-          <div id="storyMap" class="story-map" aria-label="物語を進めるソウルの旅ルート"></div>
-          <span class="map-sparkle sparkle-one" aria-hidden="true">✦</span><span class="map-sparkle sparkle-two" aria-hidden="true">✦</span>
+      <nav class="journey-route-tabs" aria-label="学習ルート">
+        <button type="button" class="journey-route-tab active" data-route="story" aria-pressed="true"><span>🗺️</span><strong>物語の旅</strong><small>物語と実践ミッション</small></button>
+        <button type="button" class="journey-route-tab" data-route="word" aria-pressed="false"><span>📚</span><strong>単語ルート</strong><small>カテゴリー別に単語を学ぶ</small></button>
+        <button type="button" class="journey-route-tab" data-route="conversation" aria-pressed="false"><span>💬</span><strong>会話ルート</strong><small>短文・会話を場面別に練習</small></button>
+      </nav>
+
+      <div id="storyRoutePanel" class="journey-route-panel">
+        <section class="map-section" aria-labelledby="mapTitle">
+          <div class="section-heading"><div><p class="eyebrow">SEOUL · BEGINNER ROUTE</p><h2 id="mapTitle">ソウルの物語マップ</h2></div><span class="pill">全10スポット</span></div>
+          <p class="map-instruction">開いている場所を選んで出発。物語、単語、リスニング、返答、声に出す練習を進めよう。</p>
+          <div class="map-legend" aria-label="マップの見方"><span><i class="legend-dot current"></i>次の目的地</span><span><i class="legend-dot cleared"></i>到着済み</span><span><i class="legend-dot locked"></i>これから</span></div>
+          <div class="map-landscape">
+            <span class="map-label label-north">北村の路地</span><span class="map-label label-river">漢江</span><span class="map-label label-south">南山のふもと</span>
+            <svg class="route-line" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
+            </svg>
+            <div id="storyMap" class="story-map" aria-label="物語を進めるソウルの旅ルート"></div>
+            <span class="map-sparkle sparkle-one" aria-hidden="true">✦</span><span class="map-sparkle sparkle-two" aria-hidden="true">✦</span>
+          </div>
+          <section class="future-levels">
+            <article><span>🧭</span><div><strong>中級エリア</strong><p>物語 11–20 · これから追加</p></div><span class="lock">🔒</span></article>
+            <article><span>🌟</span><div><strong>上級エリア</strong><p>物語 21–30 · これから追加</p></div><span class="lock">🔒</span></article>
+          </section>
+        </section>
+      </div>
+
+      <section id="wordRoutePanel" class="journey-route-panel quiz-route-panel" hidden aria-labelledby="wordRouteTitle">
+        <div class="section-heading"><div><p class="eyebrow">WORD TRAIL</p><h2 id="wordRouteTitle">単語ルート</h2></div><span class="pill">7エリア · 最大5レベル</span></div>
+        <p class="map-instruction">行きたいエリアのスポットを選ぼう。単語だけで出題し、進み具合もマップに表示します。</p>
+        <div class="direction-picker" role="group" aria-label="単語の出題方向">
+          <button type="button" class="direction-option active" data-direction="ko-jp" aria-pressed="true">韓国語 → 日本語</button>
+          <button type="button" class="direction-option" data-direction="jp-ko" aria-pressed="false">日本語 → 韓国語</button>
         </div>
+        <div id="wordRouteMap" class="quiz-route-map"></div>
       </section>
 
-      <section class="future-levels">
-        <article><span>🧭</span><div><strong>中級</strong><p>物語 11–20 · これから追加</p></div><span class="lock">🔒</span></article>
-        <article><span>🌟</span><div><strong>上級</strong><p>物語 21–30 · これから追加</p></div><span class="lock">🔒</span></article>
+      <section id="conversationRoutePanel" class="journey-route-panel quiz-route-panel" hidden aria-labelledby="conversationRouteTitle">
+        <div class="section-heading"><div><p class="eyebrow">CONVERSATION TRAIL</p><h2 id="conversationRouteTitle">会話ルート</h2></div><span class="pill">短文・会話の練習</span></div>
+        <p class="map-instruction">場面別の道を進もう。短文・会話の問題だけで練習し、選択肢も同じ形式から出題します。</p>
+        <div class="direction-picker" role="group" aria-label="会話の出題方向">
+          <button type="button" class="direction-option active" data-direction="ko-jp" aria-pressed="true">韓国語 → 日本語</button>
+          <button type="button" class="direction-option" data-direction="jp-ko" aria-pressed="false">日本語 → 韓国語</button>
+        </div>
+        <div id="conversationRouteMap" class="quiz-route-map"></div>
       </section>
 
       <section class="tool-links">
         <div><p class="eyebrow">MORE PRACTICE</p><h2>いつもの練習も続けられます</h2></div>
         <div class="tool-link-grid">
-          <a href="quiz.html">単語・会話クイズ <span>→</span></a>
           <a href="daily-test.html">今日の50問テスト <span>→</span></a>
-          <a href="stories.html">自由な物語・役割練習 <span>→</span></a>
           <a href="hangul.html">ハングルの読み方表 <span>→</span></a>
         </div>
       </section>

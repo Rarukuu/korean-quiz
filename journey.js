@@ -1,7 +1,9 @@
 (function () {
   "use strict";
   const EPISODES = window.KOREAN_JOURNEY || [];
+  const QUIZ_DATA = typeof quiz !== "undefined" ? quiz : [];
   const SAVE_KEY = "koreanJourneyProgressV1";
+  const QUIZ_SAVE_KEY = "koreanQuestData";
   const MEDIA_DB = "koreanJourneyAlbum";
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
@@ -13,6 +15,16 @@
     ["🛍️", "明洞 · ショッピング通り"], ["🚌", "市庁 · バス停"],
     ["🧭", "北村 · まち歩き"], ["💊", "仁寺洞 · 薬局"]
   ];
+  const quizCategories = [
+    { id: "greeting", name: "挨拶", icon: "👋", place: "あいさつ広場", tone: "coral" },
+    { id: "people", name: "人", icon: "🧑‍🤝‍🧑", place: "出会いの街", tone: "mint" },
+    { id: "school", name: "学校", icon: "🎒", place: "学生通り", tone: "blue" },
+    { id: "food", name: "食べ物", icon: "🍜", place: "市場エリア", tone: "gold" },
+    { id: "daily", name: "日常", icon: "🏠", place: "暮らしの街", tone: "mint" },
+    { id: "emotion", name: "感情", icon: "💛", place: "気持ちの丘", tone: "coral" },
+    { id: "conversation", name: "会話", icon: "💬", place: "会話の交差点", tone: "blue" }
+  ];
+  const routeDirections = { word: "ko-jp", conversation: "ko-jp" };
   let progress = loadProgress();
   let activeEpisode = null;
   let questionIndex = 0;
@@ -60,6 +72,82 @@
       map.append(stop);
     });
   }
+  function readQuizProgress() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(QUIZ_SAVE_KEY) || "{}");
+      if (!saved || typeof saved !== "object" || Array.isArray(saved)) return { unlockedLevel: 1, wordStats: {} };
+      return {
+        unlockedLevel: Math.min(5, Math.max(1, Number(saved.unlockedLevel) || 1)),
+        wordStats: saved.wordStats && typeof saved.wordStats === "object" ? saved.wordStats : {}
+      };
+    } catch { return { unlockedLevel: 1, wordStats: {} }; }
+  }
+  function renderQuizRoute(route) {
+    const root = $(route === "word" ? "#wordRouteMap" : "#conversationRouteMap");
+    if (!root) return;
+    root.replaceChildren();
+    const format = route === "word" ? "word" : "conversation";
+    const progressData = readQuizProgress();
+    quizCategories.forEach((category) => {
+      const zone = document.createElement("section"); zone.className = "quiz-zone tone-" + category.tone;
+      const heading = document.createElement("header"); heading.className = "quiz-zone-heading";
+      const icon = document.createElement("span"); icon.className = "zone-icon"; icon.textContent = category.icon;
+      const titleGroup = document.createElement("span"); titleGroup.className = "zone-title-group";
+      const location = document.createElement("small"); location.textContent = category.place;
+      const title = document.createElement("strong"); title.textContent = category.name;
+      titleGroup.append(location, title);
+      const count = document.createElement("span"); count.className = "zone-total";
+      const categoryItems = QUIZ_DATA.filter((item) => item.category === category.id && item.format === format);
+      count.textContent = categoryItems.length + "問";
+      heading.append(icon, titleGroup, count);
+      const track = document.createElement("div"); track.className = "quiz-level-track";
+      for (let level = 1; level <= 5; level += 1) {
+        const items = categoryItems.filter((item) => Number(item.level) === level);
+        const seen = new Set(items.filter((item) => {
+          const stats = progressData.wordStats[item.ko];
+          return stats && (Number(stats.correct) > 0 || Number(stats.wrong) > 0);
+        }).map((item) => item.ko)).size;
+        const available = items.length > 0;
+        const unlocked = available && level <= progressData.unlockedLevel;
+        const node = document.createElement("button"); node.type = "button";
+        node.className = "quiz-level-node" + (unlocked ? " is-open" : " is-locked") + (available && seen >= items.length ? " is-complete" : seen ? " is-visited" : "");
+        node.disabled = !unlocked;
+        node.setAttribute("aria-label", available
+          ? category.name + "、レベル" + level + "、" + items.length + "問、" + (unlocked ? "クイズを始める" : "レベル" + level + "は未解放")
+          : category.name + "、レベル" + level + "、問題準備中");
+        const badge = document.createElement("span"); badge.className = "level-node-badge"; badge.textContent = unlocked ? (available && seen >= items.length ? "✓" : String(level)) : available ? "🔒" : "·";
+        const label = document.createElement("strong"); label.textContent = "Lv." + level;
+        const detail = document.createElement("small"); detail.textContent = !available ? "準備中" : !unlocked ? "未解放" : seen ? seen + "/" + items.length + " 学習" : items.length + " 問";
+        node.append(badge, label, detail);
+        if (unlocked) node.addEventListener("click", () => {
+          const params = new URLSearchParams({ route, category: category.id, level: String(level), format, direction: routeDirections[route] });
+          window.location.href = "quiz.html?" + params.toString();
+        });
+        track.append(node);
+      }
+      zone.append(heading, track); root.append(zone);
+    });
+  }
+  function selectJourneyRoute(route) {
+    const selected = ["story", "word", "conversation"].includes(route) ? route : "story";
+    $("#storyRoutePanel").hidden = selected !== "story";
+    $("#wordRoutePanel").hidden = selected !== "word";
+    $("#conversationRoutePanel").hidden = selected !== "conversation";
+    $$(".journey-route-tab").forEach((button) => {
+      const active = button.dataset.route === selected;
+      button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active));
+    });
+    if (selected !== "story") renderQuizRoute(selected);
+  }
+  $$(".journey-route-tab").forEach((button) => button.addEventListener("click", () => selectJourneyRoute(button.dataset.route)));
+  $$(".direction-option").forEach((button) => button.addEventListener("click", () => {
+    const route = button.closest("#wordRoutePanel") ? "word" : "conversation";
+    routeDirections[route] = button.dataset.direction === "jp-ko" ? "jp-ko" : "ko-jp";
+    $$("#" + (route === "word" ? "wordRoutePanel" : "conversationRoutePanel") + " .direction-option").forEach((option) => {
+      const active = option === button;
+      option.classList.toggle("active", active); option.setAttribute("aria-pressed", String(active));
+    });
+  }));
   function makeHeading(eyebrow, title, text) {
     const header = document.createElement("header"); header.className = "lesson-heading";
     const small = document.createElement("p"); small.className = "eyebrow"; small.textContent = eyebrow;

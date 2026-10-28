@@ -584,35 +584,6 @@
     }
   }
 
-  async function playIncorrectSound() {
-    try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) return;
-      if (!state.soundContext || state.soundContext.state === "closed") {
-        state.soundContext = new AudioContextClass();
-      }
-      const context = state.soundContext;
-      if (context.state === "suspended") await context.resume();
-      const startAt = context.currentTime;
-      [330, 247].forEach((frequency, index) => {
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        const noteStart = startAt + index * 0.1;
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(frequency, noteStart);
-        gain.gain.setValueAtTime(0.0001, noteStart);
-        gain.gain.exponentialRampToValueAtTime(0.12, noteStart + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.17);
-        oscillator.connect(gain);
-        gain.connect(context.destination);
-        oscillator.start(noteStart);
-        oscillator.stop(noteStart + 0.18);
-      });
-    } catch (error) {
-      console.warn("不正解音を再生できませんでした。", error);
-    }
-  }
-
   function getSpeechText(playAnswerSound = false) {
     const hangulAnswerSound = state.currentQuestion.category === "hangul" && (playAnswerSound || state.answered);
     return hangulAnswerSound
@@ -827,7 +798,6 @@
     recognition.lang = "ko-KR";
     recognition.interimResults = true;
     recognition.continuous = false;
-    recognition.maxAlternatives = 5;
     recognition.onstart = () => {
       translationRequestId += 1;
       isRecognitionStarting = false;
@@ -854,16 +824,11 @@
       let interimText = "";
       for (let i = 0; i < event.results.length; i += 1) {
         const result = event.results[i];
-        let best = result[0];
-        for (let candidateIndex = 1; candidateIndex < result.length; candidateIndex += 1) {
-          if ((result[candidateIndex].confidence || 0) > (best.confidence || 0)) best = result[candidateIndex];
-        }
-        if (result.isFinal) finalText += best.transcript;
-        else interimText += best.transcript;
+        if (result.isFinal) finalText += result[0].transcript;
+        else interimText += result[0].transcript;
       }
-      /* Chrome may end a short utterance before marking its last result final. */
-      recognizedKorean = finalText.trim() || interimText.trim() || recognizedKorean;
-      const shownText = `${finalText}${interimText}`.trim() || recognizedKorean;
+      recognizedKorean = finalText.trim();
+      const shownText = `${finalText}${interimText}`.trim();
       $("speechTranscript").textContent = shownText || "聞き取り中…";
       $("speechRomanization").textContent = recognizedKorean
         ? `読み方: ${romanizeKorean(recognizedKorean)}` : "";
@@ -873,10 +838,10 @@
       isRecognitionStarting = false;
       const messages = {
         "not-allowed": "マイクが許可されていません。ブラウザのサイト設定でマイクを許可してください。",
+        "service-not-allowed": "ブラウザの音声認識サービスが利用できません。ネット接続とブラウザ設定を確認してください。",
         "audio-capture": "マイクが見つかりません。マイクの接続とOSのマイク設定を確認してください。",
         network: "音声認識サービスに接続できません。インターネット接続を確認してください。",
         "no-speech": "声を検出できませんでした。マイクに近づいて、もう一度話してください。",
-        "service-not-allowed": "Chromeの音声認識サービスを利用できません。ネット接続とChromeの設定を確認してください。",
         "language-not-supported": "このChrome環境では韓国語の音声認識を利用できません。Chromeを最新版に更新してください。",
         aborted: "音声認識を停止しました。もう一度話すにはマイクを押してください。"
       };
@@ -992,13 +957,13 @@
       state.correctAnswers += 1;
       stats.correct += 1;
       if (state.isReviewQuestion) state.reviewQueue = state.reviewQueue.filter((entry) => entry.question.ko !== question.ko);
-      void playCorrectSound();
+      if (!japaneseToKorean) void playCorrectSound();
       renderAnswerExplanation(question, correct);
     } else {
       state.streak = 0;
       stats.wrong += 1;
       queueForReview(question);
-      void playIncorrectSound();
+      if (!japaneseToKorean) void playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
       renderAnswerExplanation(question, correct);
     }
     if (timedOut) $("result").textContent = "⏰ 時間切れ！不正解";
@@ -1128,6 +1093,27 @@
   });
 
   loadData();
+  const routeParams = new URLSearchParams(window.location.search);
+  const requestedRoute = routeParams.get("route");
+  const requestedCategory = routeParams.get("category");
+  const requestedFormat = routeParams.get("format");
+  if (["word", "conversation"].includes(requestedRoute) &&
+      ["word", "conversation"].includes(requestedFormat) &&
+      quiz.some((item) => item.category === requestedCategory && item.format === requestedFormat)) {
+    categorySelect.value = requestedCategory;
+    formatSelect.value = requestedFormat;
+    state.questionDirection = routeParams.get("direction") === "jp-ko" ? "jp-ko" : "ko-jp";
+    directionSelect.value = state.questionDirection;
+    const requestedLevel = Number(routeParams.get("level"));
+    if (Number.isInteger(requestedLevel) && requestedLevel > 0) {
+      state.selectedLevel = Math.min(requestedLevel, state.unlockedLevel, MAX_LEVEL);
+    }
+    const categoryLabel = categorySelect.options[categorySelect.selectedIndex]?.textContent || requestedCategory;
+    const routeLabel = requestedRoute === "word" ? "単語ルート" : "会話ルート";
+    const directionLabel = state.questionDirection === "jp-ko" ? "日本語 → 韓国語" : "韓国語 → 日本語";
+    $("quizRouteNotice").hidden = false;
+    $("quizRouteNotice").textContent = `${routeLabel} · ${categoryLabel} · Level ${state.selectedLevel} · ${directionLabel}`;
+  }
   if (!isGoogleChrome()) {
     $("speakingMicButton").disabled = true;
     $("speakingStatus").textContent = "音声認識はGoogle Chromeでご利用ください。このブラウザでは使用できません。";
