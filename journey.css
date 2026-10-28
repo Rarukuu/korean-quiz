@@ -206,6 +206,138 @@ body{background:#e9efe2}
   .map-home-screen .map-stop{min-height:60px}.map-home-screen .stop-state{display:none}
 }
 
+/* The home screen is a full-viewport map. Keep its controls light and on-map. */
+body.map-screen-active{height:100%;min-height:100svh;overflow:hidden;background:#c7d9c0}
+body.map-screen-active .journey-app{width:100%;max-width:none;height:100svh;margin:0}
+body.map-screen-active .topbar,body.map-screen-active footer{display:none}
+body.map-screen-active #homeScreen{position:relative;width:100%;height:100svh;min-height:0;margin:0;padding:0;overflow:hidden}
+body.map-screen-active #homeScreen>.hero,
+body.map-screen-active #homeScreen>.tool-links{display:none!important}
+body.map-screen-active #homeScreen>.map-route-picker{position:absolute;z-index:20;top:14px;left:14px;margin:0}
+body.map-screen-active .route-menu-toggle{min-height:44px;padding:8px 14px;border-color:#fff2c6;background:#1c3150eF;color:#fff4d0;box-shadow:0 5px 18px #14233b50;backdrop-filter:blur(9px)}
+body.map-screen-active .route-menu-toggle>strong{border-color:#ffffff45;color:#fff}
+body.map-screen-active .route-menu-chevron{color:#f7d987}
+body.map-screen-active .journey-route-menu{top:calc(100% + 9px);border-color:#e6d6a9;background:#fff9e9f2}
+body.map-screen-active #homeScreen>.journey-route-panel{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:0!important;overflow:hidden;border:0;border-radius:0}
+body.map-screen-active #storyRoutePanel .map-section{position:absolute;inset:0;height:100%;margin:0}
+body.map-screen-active #storyRoutePanel .section-heading,
+body.map-screen-active #storyRoutePanel .map-instruction,
+body.map-screen-active #storyRoutePanel .map-legend,
+body.map-screen-active #storyRoutePanel .future-levels{display:none!important}
+body.map-screen-active #storyRoutePanel .map-landscape{position:absolute;inset:0;width:100%;height:100%;min-height:0;padding:0;border:0;border-radius:0;background:
+  radial-gradient(ellipse at 83% 14%,#ffd77e 0 4%,#ffd77e38 4.4%,transparent 17%),
+  radial-gradient(ellipse at 10% 82%,#61a7b8 0 9%,transparent 9.5%),
+  radial-gradient(ellipse at 92% 78%,#66aeb9 0 12%,transparent 12.5%),
+  radial-gradient(ellipse at 24% 70%,#91bf80 0 22%,transparent 22.5%),
+  radial-gradient(ellipse at 70% 60%,#a2cb82 0 28%,transparent 28.5%),
+  linear-gradient(180deg,#273959 0%,#455372 25%,#94ad85 48%,#c8d69a 76%,#d9c38c 100%);
+  box-shadow:none}
+body.map-screen-active #storyRoutePanel .map-landscape:before{z-index:0;width:82%;height:68%;left:9%;top:24%;border:2px solid #fff3c980;background:#e4edb820;box-shadow:0 0 0 16px #fff9dc0e,0 0 0 40px #fff9dc0a;transform:rotate(-10deg)}
+body.map-screen-active #storyRoutePanel .map-landscape:after{z-index:0;width:23%;height:110%;left:37%;top:1%;border:3px solid #8bd0d28a;background:#65b7c177;box-shadow:inset 0 0 0 9px #d2f3d23b;transform:rotate(34deg)}
+body.map-screen-active #storyRoutePanel .map-label{z-index:2;color:#fff2c8d9;text-shadow:0 2px 5px #233852a6;font-size:.75rem}
+body.map-screen-active #storyRoutePanel .label-north{top:13%;left:29%}
+body.map-screen-active #storyRoutePanel .label-river{top:42%;right:22%;color:#e8ffffdb}
+body.map-screen-active #storyRoutePanel .label-south{bottom:13%;left:45%}
+body.map-screen-active #storyRoutePanel .map-landmark{z-index:2}
+body.map-screen-active #storyRoutePanel .map-landmark>span{font-size:clamp(2.3rem,5vw,4.7rem)}
+body.map-screen-active #storyRoutePanel .map-landmark small{border-color:#f4d88c;background:#fff4ddef;color:#30435a;font-size:.7rem}
+body.map-screen-active #storyRoutePanel .landmark-palace{top:22%;left:7%}
+body.map-screen-active #storyRoutePanel .landmark-market{top:28%;right:7%}
+body.map-screen-active #storyRoutePanel .landmark-mountain{right:18%;bottom:12%;left:auto}
+body.map-screen-active #storyRoutePanel .landmark-cafe{bottom:13%;left:14%}
+body.map-screen-active #storyRoutePanel .landmark-hanok{top:18%;left:47%}
+body.map-screen-active #storyRoutePanel .landmark-bridge{right:38%;bottom:16%}
+body.map-screen-active #storyRoutePanel .route-line{z-index:1;opacity:.78}
+body.map-screen-active #storyRoutePanel .route-line path{stroke:#fff0c5;stroke-width:25;filter:drop-shadow(0 4px 3px #253a4266)}
+body.map-screen-active #storyRoutePanel .route-line .route-line-center{stroke:#cb754e;stroke-width:3;stroke-dasharray:2 16}
+body.map-screen-active #storyRoutePanel .story-map{position:absolute;z-index:4;inset:10% 4% 7%;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:0;min-height:0}
+body.map-screen-active #storyRoutePanel .map-stop-wrap{align-items:center;padding:5px}
+body.map-screen-active #storyRoutePanel .map-stop{width:min(100%,190px);min-height:clamp(94px,15vh,136px);padding:10px 11px;border:1px solid #fff3d9;background:#fff8e7e8;box-shadow:0 8px 20px #1f314360;backdrop-filter:blur(3px)}
+body.map-screen-active #storyRoutePanel .map-stop:disabled{background:#d5d4c8d9;opacity:.82}
+body.map-screen-active #storyRoutePanel .map-stop-wrap.is-current .map-stop{border:2px solid #ffd264;background:#fff5d9f2;box-shadow:0 0 0 6px #ffdc7d4d,0 10px 28px #182c4a6b}
+body.map-screen-active #storyRoutePanel .map-stop-wrap.is-cleared .map-stop{background:#edffe7eF;box-shadow:0 0 0 3px #7de18f85,0 0 25px #86ef8a9c,0 8px 20px #1f314360}
+body.map-screen-active #storyRoutePanel .map-stop-wrap.is-cleared .stop-details{padding-right:57px}
+body.map-screen-active #storyRoutePanel .stop-marker{width:32px;height:32px;font-size:1rem}
+body.map-screen-active #storyRoutePanel .stop-location{color:#547353;font-size:.62rem}
+body.map-screen-active #storyRoutePanel .stop-title{font-size:.78rem}
+body.map-screen-active #storyRoutePanel .stop-scene{font-size:.62rem}
+body.map-screen-active #storyRoutePanel .stop-state{font-size:.56rem}
+body.map-screen-active #storyRoutePanel .travel-stamp{top:10px;right:8px;width:49px;height:49px}
+body.map-screen-active #storyRoutePanel .map-sparkle{z-index:3}
+body.map-screen-active .quiz-route-panel{background:
+  radial-gradient(ellipse at 8% 75%,#6ea66f 0 16%,transparent 16.5%),
+  radial-gradient(ellipse at 90% 23%,#e8d284 0 13%,transparent 13.5%),
+  radial-gradient(ellipse at 78% 84%,#5b9b9a 0 13%,transparent 13.5%),
+  linear-gradient(180deg,#273959 0%,#455372 26%,#88a77d 52%,#c2d293 78%,#dac18b 100%);box-shadow:none}
+body.map-screen-active .quiz-route-panel:before{inset:13% 5%;border:3px solid #fff0bead;border-radius:47% 53% 46% 54%;box-shadow:0 0 0 20px #fff6db10,0 0 0 55px #fff6db09;transform:rotate(-8deg)}
+body.map-screen-active .quiz-route-panel .section-heading,
+body.map-screen-active .quiz-route-panel>.map-instruction{display:none!important}
+body.map-screen-active .quiz-route-panel .direction-picker{position:absolute;z-index:8;top:14px;right:14px;margin:0}
+body.map-screen-active .quiz-route-panel .direction-option{border-color:#fff1c7;background:#243956dc;color:#fff4d5;box-shadow:0 4px 14px #192b4650}
+body.map-screen-active .quiz-route-panel .direction-option.active{border-color:#ffd56f;background:#fff0c9;color:#35475c}
+body.map-screen-active .quiz-route-map{position:absolute;z-index:4;inset:8% 4% 4%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));align-content:center;align-items:center;gap:clamp(10px,2vw,26px);max-height:none;overflow:auto;padding:16px 10px}
+body.map-screen-active .quiz-zone{min-height:116px;padding:12px 12px 10px;border:1px solid #fff0c8;background:#fff7e4e8;box-shadow:0 8px 22px #192e4c57;backdrop-filter:blur(3px)}
+body.map-screen-active .quiz-zone:nth-child(5){grid-column:2}
+body.map-screen-active .quiz-zone:nth-child(6){grid-column:3}
+body.map-screen-active .quiz-zone:nth-child(7){grid-column:4}
+body.map-screen-active .quiz-zone-heading{margin-bottom:9px}
+body.map-screen-active .zone-title-group small{color:#57745a}
+body.map-screen-active .quiz-level-track:before{background:#c4d9ae}
+body.map-screen-active #hangulRoutePanel>.section-heading,
+body.map-screen-active #hangulRoutePanel>.map-instruction{display:none!important}
+body.map-screen-active #hangulRoutePanel .hangul-route-zone{position:absolute;top:50%;left:50%;width:min(620px,70vw);margin:0;padding:20px;border:1px solid #fff0c8;border-radius:24px;background:#fff7e4ed;box-shadow:0 12px 36px #192e4c60;transform:translate(-50%,-50%)}
+body.map-screen-active #hangulRoutePanel .quiz-zone-heading{margin-bottom:16px}
+body.map-screen-active #hangulRoutePanel .hangul-level-track{max-width:none}
+body.map-screen-active #hangulRoutePanel .hangul-level-track .quiz-level-node>small{font-size:.7rem}
+@media(max-width:760px){
+  body.map-screen-active #homeScreen>.map-route-picker{top:9px;left:9px}
+  body.map-screen-active .route-menu-toggle{min-height:39px;padding:6px 10px;font-size:.68rem}
+  body.map-screen-active .route-menu-toggle>strong{font-size:.72rem}
+  body.map-screen-active #storyRoutePanel .story-map{inset:8% 3% 4%;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));overflow:auto}
+  body.map-screen-active #storyRoutePanel .map-stop-wrap:nth-child(n){grid-column:auto;grid-row:auto}
+  body.map-screen-active #storyRoutePanel .map-stop-wrap:nth-child(odd){justify-content:flex-start}
+  body.map-screen-active #storyRoutePanel .map-stop-wrap:nth-child(even){justify-content:flex-end}
+  body.map-screen-active #storyRoutePanel .map-stop{width:min(100%,180px);min-height:clamp(74px,13vh,104px);padding:7px 8px}
+  body.map-screen-active #storyRoutePanel .stop-marker{width:27px;height:27px}
+  body.map-screen-active #storyRoutePanel .stop-location{font-size:.52rem}
+  body.map-screen-active #storyRoutePanel .stop-title{font-size:.68rem}
+  body.map-screen-active #storyRoutePanel .stop-scene{font-size:.53rem;-webkit-line-clamp:1}
+  body.map-screen-active #storyRoutePanel .stop-state{font-size:.49rem}
+  body.map-screen-active #storyRoutePanel .travel-stamp{width:39px;height:39px;top:7px;right:6px}
+  body.map-screen-active #storyRoutePanel .map-landmark>span{font-size:2.2rem}
+  body.map-screen-active #storyRoutePanel .map-landmark small{font-size:.54rem}
+  body.map-screen-active #storyRoutePanel .landmark-palace{top:20%;left:4%}
+  body.map-screen-active #storyRoutePanel .landmark-market{top:22%;right:4%}
+  body.map-screen-active #storyRoutePanel .landmark-mountain{right:10%;bottom:9%}
+  body.map-screen-active #storyRoutePanel .landmark-cafe{bottom:9%;left:6%}
+  body.map-screen-active #storyRoutePanel .landmark-hanok{top:13%;left:43%}
+  body.map-screen-active #storyRoutePanel .landmark-bridge{right:37%;bottom:12%}
+  body.map-screen-active .quiz-route-panel .direction-picker{top:9px;right:8px}
+  body.map-screen-active .quiz-route-panel .direction-option{padding:6px 8px;font-size:.64rem}
+  body.map-screen-active .quiz-route-map{inset:7% 3% 3%;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:8px;padding:8px 4px}
+  body.map-screen-active .quiz-zone{min-height:0;padding:8px 8px 7px}
+  body.map-screen-active .quiz-zone:nth-child(n){grid-column:auto}
+  body.map-screen-active .quiz-zone:nth-child(7){grid-column:1 / -1;width:calc(50% - 4px);justify-self:center}
+  body.map-screen-active .quiz-zone-heading{gap:6px;margin-bottom:5px}
+  body.map-screen-active .zone-icon{width:28px;height:28px;font-size:.9rem}
+  body.map-screen-active .zone-title-group small{font-size:.5rem}
+  body.map-screen-active .zone-title-group strong{font-size:.72rem}
+  body.map-screen-active .zone-total{padding:3px 5px;font-size:.5rem}
+  body.map-screen-active .quiz-level-track{gap:2px;padding-top:4px}
+  body.map-screen-active .quiz-level-track:before{top:17px}
+  body.map-screen-active .level-node-badge{width:24px;height:24px;font-size:.62rem}
+  body.map-screen-active .quiz-level-node>strong{font-size:.51rem}
+  body.map-screen-active .quiz-level-node>small{font-size:.43rem}
+  body.map-screen-active #hangulRoutePanel .hangul-route-zone{width:calc(100% - 26px);padding:15px}
+}
+@media(max-height:650px) and (min-width:761px){
+  body.map-screen-active #storyRoutePanel .story-map{inset:8% 3% 3%}
+  body.map-screen-active #storyRoutePanel .map-stop{min-height:86px;padding:7px}
+  body.map-screen-active #storyRoutePanel .stop-scene,body.map-screen-active #storyRoutePanel .stop-state{display:none}
+  body.map-screen-active .quiz-route-map{inset:8% 3% 3%;gap:8px}
+  body.map-screen-active .quiz-zone{min-height:90px;padding:7px}
+}
+
 .journey-route-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:30px 0 24px}
 .journey-route-tab{display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:10px;min-height:78px;padding:13px 16px;border:1px solid #e5e3db;border-radius:18px;background:#fffdf9;color:var(--ink);text-align:left;box-shadow:0 7px 20px #3341550a;transition:transform .18s,border-color .18s,box-shadow .18s}
 .journey-route-tab:hover{transform:translateY(-2px);box-shadow:0 10px 25px #33415515}
