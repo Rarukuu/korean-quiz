@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Korean Quiz - クイズ</title>
-  <link rel="stylesheet" href="style.css?v=quiz-map-routing-20261027">
+  <link rel="stylesheet" href="style.css?v=map-challenges-20261027">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="questions.js?v=conversation-word-l1-20261007" defer></script>
-  <script src="app.js?v=quiz-map-routing-20261027" defer></script>
+  <script src="app.js?v=map-challenges-20261027" defer></script>
 </head>
 <body>
   <main class="container quiz-container">
@@ -16,7 +16,28 @@
     </nav>
     <h1>🇰🇷 Korean Quiz</h1>
 
-    <nav class="screen-nav" aria-label="クイズメニュー">
+    <section id="routeChallengeIntro" class="map-challenge-intro" hidden aria-labelledby="routeChallengeTitle">
+      <p class="map-eyebrow" id="routeChallengeEyebrow">SEOUL · QUIZ STOP</p>
+      <h2 id="routeChallengeTitle">単語ルート</h2>
+      <p id="routeChallengeDescription" class="map-challenge-description"></p>
+      <div class="map-challenge-meta"><span id="routeChallengeCategory"></span><span id="routeChallengeLevel"></span><span id="routeChallengeFormat"></span></div>
+      <label class="challenge-count-label" for="routeChallengeCount">今回の問題数</label>
+      <select id="routeChallengeCount" class="challenge-count-select"></select>
+      <p id="routeChallengeCountHelp" class="subtle"></p>
+      <button id="startRouteChallenge" class="route-start-button" type="button">このスポットに挑戦する →</button>
+    </section>
+    <section id="routeChallengeResult" class="map-challenge-result" hidden aria-labelledby="routeChallengeResultTitle">
+      <p class="map-eyebrow">SPOT RESULT</p>
+      <h2 id="routeChallengeResultTitle">スポットの結果</h2>
+      <p id="routeChallengeResultScore" class="challenge-result-score"></p>
+      <p id="routeChallengeResultMessage" class="map-challenge-description"></p>
+      <div class="challenge-result-actions">
+        <button id="retryRouteChallenge" class="route-start-button" type="button">もう一度挑戦する</button>
+        <a class="route-map-return" href="index.html">旅マップに戻る →</a>
+      </div>
+    </section>
+
+    <nav class="screen-nav" id="screenNav" aria-label="クイズメニュー">
       <button type="button" class="screen-tab active" id="quizTab" aria-pressed="true" aria-controls="quizScreen" data-screen-target="quizScreen">クイズ</button>
       <button type="button" class="screen-tab" id="progressTab" aria-pressed="false" aria-controls="progressScreen" data-screen-target="progressScreen">学習記録</button>
       <button type="button" class="screen-tab" id="speakingTab" aria-pressed="false" aria-controls="speakingScreen" data-screen-target="speakingScreen">スピーキング</button>
@@ -25,6 +46,10 @@
 
     <section id="quizScreen" class="app-screen" aria-labelledby="quizTab">
       <p id="quizRouteNotice" class="quiz-route-notice" role="status" hidden></p>
+      <div id="mapChallengeProgress" class="map-challenge-progress" hidden>
+        <div><span id="mapChallengeProgressLabel"></span><strong id="mapChallengeScore"></strong></div>
+        <div class="map-challenge-progress-track"><span id="mapChallengeProgressFill"></span></div>
+      </div>
       <div class="stats quiz-stats" aria-live="polite">
         <div id="level">🎯 Level 1</div>
         <div id="streak">🔥 Streak: 0</div>

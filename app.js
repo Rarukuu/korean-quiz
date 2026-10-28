@@ -2,6 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "koreanQuestData";
+  const MAP_CHALLENGE_KEY = "koreanQuizMapChallengeV1";
   const MAX_LEVEL = Math.max(1, ...quiz.map((item) => Number(item.level) || 1));
   const LEVEL_REQUIREMENTS = { 2: 5, 3: 20, 4: 40, 5: 65 };
   const LEVEL_LABELS = { 3: "会話", 4: "応用", 5: "実践" };
@@ -55,6 +56,8 @@
   let recognitionWatchdog = null;
   let recognizedKorean = "";
   let translationRequestId = 0;
+  let mapRouteConfig = null;
+  let mapChallenge = null;
 
   function validQuestion(question) {
     return question && typeof question.ko === "string" &&
@@ -270,6 +273,120 @@
     return quiz.filter(matchesCurrentFilters);
   }
 
+  function getMapChallengePool(config) {
+    const seen = new Set();
+    return quiz.filter((item) => item.category === config.category &&
+      item.format === config.format && Number(item.level) === config.level)
+      .filter((item) => {
+        const key = `${item.ko}|${item.jp}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }
+
+  function directionHasFourChoices(items, direction) {
+    if (!items.length) return false;
+    return items.every((question) => {
+      const seenKorean = new Set([question.ko]);
+      const seenJapanese = new Set([question.jp]);
+      for (const candidate of items) {
+        if (seenKorean.has(candidate.ko) || seenJapanese.has(candidate.jp)) continue;
+        seenKorean.add(candidate.ko);
+        seenJapanese.add(candidate.jp);
+        if (direction === "jp-ko" ? seenKorean.size >= 4 : seenJapanese.size >= 4) return true;
+      }
+      return false;
+    });
+  }
+
+  function prepareMapChallenge(config) {
+    mapRouteConfig = config;
+    const pool = getMapChallengePool(config);
+    const categoryLabel = categorySelect.options[[...categorySelect.options].findIndex((option) => option.value === config.category)]?.textContent || config.category;
+    const isWordRoute = config.route === "word";
+    $("routeChallengeTitle").textContent = isWordRoute ? "単語ルート" : "会話ルート";
+    $("routeChallengeDescription").textContent = isWordRoute
+      ? "このスポットの単語だけに挑戦します。選んだカテゴリー・レベルの問題を解いて、道を進もう。"
+      : "この場面の短文・会話だけに挑戦します。選んだカテゴリー・レベルの問題を解いて、道を進もう。";
+    $("routeChallengeCategory").textContent = categoryLabel;
+    $("routeChallengeLevel").textContent = `Level ${config.level}`;
+    $("routeChallengeFormat").textContent = isWordRoute ? "単語問題" : "会話・短文問題";
+    $("routeChallengeCount").replaceChildren();
+    const hasFourChoices = directionHasFourChoices(pool, config.direction);
+    const countOptions = [5, 10, 15].filter((count) => count <= pool.length);
+    if (pool.length >= 4 && !countOptions.includes(pool.length)) countOptions.push(pool.length);
+    countOptions.sort((a, b) => a - b);
+    countOptions.forEach((count) => {
+      const option = document.createElement("option"); option.value = String(count);
+      option.textContent = count === pool.length && ![5, 10, 15].includes(count) ? `${count}問（このレベルの全問題）` : `${count}問`;
+      $("routeChallengeCount").append(option);
+    });
+    const defaultCount = countOptions.includes(10) ? 10 : countOptions.includes(5) ? 5 : countOptions[0];
+    if (defaultCount) $("routeChallengeCount").value = String(defaultCount);
+    $("routeChallengeCount").disabled = !hasFourChoices || !countOptions.length;
+    $("startRouteChallenge").disabled = !hasFourChoices || !countOptions.length;
+    $("routeChallengeCountHelp").textContent = !hasFourChoices
+      ? "このカテゴリー・レベルには、同じ範囲だけで4択を作れる問題がまだ足りません。問題を追加すると挑戦できます。"
+      : `このスポットには${pool.length}問あります。問題はこのカテゴリー・レベル・形式の中から出題され、同じ問題は1回の挑戦で繰り返しません。`;
+    $("routeChallengeIntro").hidden = false;
+    $("routeChallengeResult").hidden = true;
+    $("quizScreen").hidden = true;
+    $("screenNav").hidden = true;
+    $("mapChallengeProgress").hidden = true;
+    $("quizRouteNotice").textContent = `${isWordRoute ? "単語ルート" : "会話ルート"} · ${categoryLabel} · Level ${config.level}`;
+    $("quizRouteNotice").hidden = false;
+    const homeLink = $(".quiz-navigation .home-link");
+    if (homeLink) homeLink.textContent = "← 旅マップへ戻る";
+    document.body.classList.add("map-challenge-active");
+  }
+
+  function startMapChallenge() {
+    if (!mapRouteConfig) return;
+    const pool = getMapChallengePool(mapRouteConfig);
+    if (!directionHasFourChoices(pool, mapRouteConfig.direction)) return;
+    const requestedCount = Number($("routeChallengeCount").value) || pool.length;
+    const questions = shuffle(pool).slice(0, Math.min(requestedCount, pool.length));
+    if (!questions.length) return;
+    mapChallenge = { ...mapRouteConfig, questions, index: 0, correct: 0 };
+    $("routeChallengeIntro").hidden = true;
+    $("routeChallengeResult").hidden = true;
+    $("quizScreen").hidden = false;
+    $("mapChallengeProgress").hidden = false;
+    loadQuestion();
+  }
+
+  function finishMapChallenge() {
+    if (!mapChallenge) return;
+    const accuracy = Math.round(mapChallenge.correct / mapChallenge.questions.length * 100);
+    const cleared = accuracy >= LEVEL_UP_ACCURACY;
+    try {
+      const raw = JSON.parse(localStorage.getItem(MAP_CHALLENGE_KEY) || "{}");
+      const saved = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+      const key = `${mapChallenge.route}|${mapChallenge.category}|${mapChallenge.level}`;
+      const previous = saved[key] && typeof saved[key] === "object" ? saved[key] : {};
+      saved[key] = {
+        attempts: Math.max(0, Number(previous.attempts) || 0) + 1,
+        bestAccuracy: Math.max(accuracy, Number(previous.bestAccuracy) || 0),
+        cleared: Boolean(previous.cleared) || cleared,
+        lastAccuracy: accuracy,
+        lastCount: mapChallenge.questions.length
+      };
+      localStorage.setItem(MAP_CHALLENGE_KEY, JSON.stringify(saved));
+    } catch (error) { console.warn("マップの挑戦記録を保存できませんでした。", error); }
+    $("routeChallengeResultTitle").textContent = cleared ? "スポットクリア！" : "あと少し！";
+    $("routeChallengeResultScore").textContent = `${mapChallenge.correct} / ${mapChallenge.questions.length}問 · ${accuracy}%`;
+    $("routeChallengeResultMessage").textContent = cleared
+      ? "このスポットの道をクリアしました。旅マップに戻ると、ベスト記録が残っています。"
+      : "このスポットの問題だけでもう一度挑戦できます。80%以上でスポットクリアです。";
+    $("quizScreen").hidden = true;
+    $("mapChallengeProgress").hidden = true;
+    $("routeChallengeIntro").hidden = true;
+    $("routeChallengeResult").hidden = false;
+    document.body.classList.remove("has-quick-next");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function questionKey(question) {
     return `${question.level}|${question.category}|${question.ko}|${question.jp}`;
   }
@@ -283,6 +400,12 @@
   }
 
   function pickQuestion() {
+    if (mapChallenge) {
+      const question = mapChallenge.questions[mapChallenge.index] || null;
+      state.isReviewQuestion = false;
+      if (question) state.lastQuestionKey = questionKey(question);
+      return question;
+    }
     const selectedCategory = categorySelect.value;
     const eligibleReviews = state.reviewQueue.filter((entry) => entry.delay <= 0 && matchesCurrentFilters(entry.question));
     const unseenReviews = eligibleReviews.filter((entry) =>
@@ -329,15 +452,17 @@
     }
     const categoryPool = quiz.filter((item) => item.category === question.category);
     const sameFormatPool = categoryPool.filter((item) => item.format === question.format);
-    const pools = [
-      currentPool().filter((item) => item.category === question.category && item.format === question.format),
-      sameFormatPool.filter((item) => Number(item.level) === state.selectedLevel),
-      sameFormatPool
-    ];
+    const pools = mapChallenge
+      ? [sameFormatPool.filter((item) => Number(item.level) === state.selectedLevel)]
+      : [
+        currentPool().filter((item) => item.category === question.category && item.format === question.format),
+        sameFormatPool.filter((item) => Number(item.level) === state.selectedLevel),
+        sameFormatPool
+      ];
     const distractors = [];
     const seenMeanings = new Set([question.jp]);
     pools.flat().forEach((item) => {
-      if (distractors.length >= 3 || seenMeanings.has(item.jp)) return;
+      if (distractors.length >= 3 || seenMeanings.has(item.jp) || (mapChallenge && item.ko === question.ko)) return;
       seenMeanings.add(item.jp);
       distractors.push(item.jp);
     });
@@ -347,11 +472,13 @@
   function makeJapaneseToKoreanChoices(question) {
     const categoryPool = quiz.filter((item) => item.category === question.category);
     const sameFormatPool = categoryPool.filter((item) => item.format === question.format);
-    const pools = [
-      currentPool().filter((item) => item.category === question.category && item.format === question.format),
-      sameFormatPool.filter((item) => Number(item.level) === state.selectedLevel),
-      sameFormatPool
-    ];
+    const pools = mapChallenge
+      ? [sameFormatPool.filter((item) => Number(item.level) === state.selectedLevel)]
+      : [
+        currentPool().filter((item) => item.category === question.category && item.format === question.format),
+        sameFormatPool.filter((item) => Number(item.level) === state.selectedLevel),
+        sameFormatPool
+      ];
     const distractors = [];
     const seenMeanings = new Set([question.jp]);
     const seenKorean = new Set([question.ko]);
@@ -366,11 +493,22 @@
 
   function updateQuestionNavigation() {
     $("previousQuestionBtn").disabled = state.questionHistoryIndex <= 0;
+    $("previousQuestionBtn").hidden = Boolean(mapChallenge);
     $("nextBtn").disabled = !state.answered;
-    $("nextBtn").textContent = "➡️ 次の問題";
+    $("nextBtn").hidden = Boolean(mapChallenge);
+    $("nextBtn").textContent = mapChallenge && mapChallenge.index === mapChallenge.questions.length - 1 ? "結果を見る" : "➡️ 次の問題";
     $("quickNextBtn").hidden = !state.answered;
     $("quickNextBtn").disabled = !state.answered;
+    $("quickNextBtn").textContent = mapChallenge && mapChallenge.index === mapChallenge.questions.length - 1 ? "🏁 結果を見る" : "➡️ 次の問題へ";
     document.body.classList.toggle("has-quick-next", state.answered);
+  }
+
+  function updateMapChallengeProgress() {
+    if (!mapChallenge) return;
+    const completedCount = mapChallenge.index + (state.answered ? 1 : 0);
+    $("mapChallengeProgressLabel").textContent = `問題 ${Math.min(mapChallenge.index + 1, mapChallenge.questions.length)} / ${mapChallenge.questions.length}`;
+    $("mapChallengeScore").textContent = `正解 ${mapChallenge.correct}問`;
+    $("mapChallengeProgressFill").style.width = `${completedCount / mapChallenge.questions.length * 100}%`;
   }
 
   function loadQuestion({ historyEntry = null, keepHistory = false } = {}) {
@@ -435,6 +573,7 @@
       updateQuestionNavigation();
       return;
     }
+    if (mapChallenge) updateMapChallengeProgress();
     $("koreanText").textContent = japaneseToKorean ? state.currentQuestion.jp : state.currentQuestion.ko;
     $("koreanText").lang = japaneseToKorean ? "ja" : "ko";
     $("koreanText").classList.toggle("japanese-prompt", japaneseToKorean);
@@ -539,6 +678,15 @@
 
   function goToNextQuestion() {
     if (!state.answered) return;
+    if (mapChallenge) {
+      if (mapChallenge.index >= mapChallenge.questions.length - 1) {
+        finishMapChallenge();
+      } else {
+        mapChallenge.index += 1;
+        loadQuestion();
+      }
+      return;
+    }
     if (state.questionHistoryIndex < state.questionHistory.length - 1) {
       loadQuestion({ historyEntry: state.questionHistory[state.questionHistoryIndex + 1] });
       return;
@@ -952,6 +1100,7 @@
     const stats = state.wordStats[question.ko] || (state.wordStats[question.ko] = { correct: 0, wrong: 0 });
     const japaneseToKorean = state.questionDirection === "jp-ko" && question.category !== "hangul";
     const correct = japaneseToKorean ? answer && answer.ko === question.ko : answer === question.jp;
+    if (mapChallenge && correct) mapChallenge.correct += 1;
     if (correct) {
       state.streak += 1;
       state.correctAnswers += 1;
@@ -983,6 +1132,7 @@
       button.classList.toggle("is-wrong", Boolean(isSelected && !isCorrect));
     });
     updateQuestionNavigation();
+    if (mapChallenge) updateMapChallengeProgress();
     updateStats();
     saveData();
     if (question.category === "hangul") {
@@ -1091,6 +1241,12 @@
     categorySelect.value = "all";
     loadQuestion();
   });
+  $("startRouteChallenge").addEventListener("click", startMapChallenge);
+  $("retryRouteChallenge").addEventListener("click", () => {
+    if (!mapRouteConfig) return;
+    prepareMapChallenge(mapRouteConfig);
+    startMapChallenge();
+  });
 
   loadData();
   const routeParams = new URLSearchParams(window.location.search);
@@ -1108,10 +1264,16 @@
     if (Number.isInteger(requestedLevel) && requestedLevel > 0) {
       state.selectedLevel = Math.min(requestedLevel, state.unlockedLevel, MAX_LEVEL);
     }
+    mapRouteConfig = {
+      route: requestedRoute,
+      category: requestedCategory,
+      format: requestedFormat,
+      direction: state.questionDirection,
+      level: state.selectedLevel
+    };
     const categoryLabel = categorySelect.options[categorySelect.selectedIndex]?.textContent || requestedCategory;
     const routeLabel = requestedRoute === "word" ? "単語ルート" : "会話ルート";
     const directionLabel = state.questionDirection === "jp-ko" ? "日本語 → 韓国語" : "韓国語 → 日本語";
-    $("quizRouteNotice").hidden = false;
     $("quizRouteNotice").textContent = `${routeLabel} · ${categoryLabel} · Level ${state.selectedLevel} · ${directionLabel}`;
   }
   if (!isGoogleChrome()) {
@@ -1122,5 +1284,6 @@
   $("hangulTimeLimitSelect").value = String(state.hangulTimeLimit);
   updateLevelOptions();
   updateStats();
-  loadQuestion();
+  if (mapRouteConfig) prepareMapChallenge(mapRouteConfig);
+  else loadQuestion();
 })();

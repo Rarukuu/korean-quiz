@@ -78,9 +78,15 @@
       if (!saved || typeof saved !== "object" || Array.isArray(saved)) return { unlockedLevel: 1, wordStats: {} };
       return {
         unlockedLevel: Math.min(5, Math.max(1, Number(saved.unlockedLevel) || 1)),
-        wordStats: saved.wordStats && typeof saved.wordStats === "object" ? saved.wordStats : {}
+        wordStats: saved.wordStats && typeof saved.wordStats === "object" ? saved.wordStats : {},
+        challenges: (() => {
+          try {
+            const rounds = JSON.parse(localStorage.getItem("koreanQuizMapChallengeV1") || "{}");
+            return rounds && typeof rounds === "object" && !Array.isArray(rounds) ? rounds : {};
+          } catch { return {}; }
+        })()
       };
-    } catch { return { unlockedLevel: 1, wordStats: {} }; }
+    } catch { return { unlockedLevel: 1, wordStats: {}, challenges: {} }; }
   }
   function renderQuizRoute(route) {
     const root = $(route === "word" ? "#wordRouteMap" : "#conversationRouteMap");
@@ -98,26 +104,39 @@
       titleGroup.append(location, title);
       const count = document.createElement("span"); count.className = "zone-total";
       const categoryItems = QUIZ_DATA.filter((item) => item.category === category.id && item.format === format);
-      count.textContent = categoryItems.length + "問";
+      const uniqueItems = [...new Map(categoryItems.map((item) => [`${item.ko}|${item.jp}`, item])).values()];
+      count.textContent = uniqueItems.length + "問";
       heading.append(icon, titleGroup, count);
       const track = document.createElement("div"); track.className = "quiz-level-track";
       for (let level = 1; level <= 5; level += 1) {
-        const items = categoryItems.filter((item) => Number(item.level) === level);
+        const items = uniqueItems.filter((item) => Number(item.level) === level);
+        const answerField = routeDirections[route] === "jp-ko" ? "ko" : "jp";
+        const hasFourChoices = items.length > 0 && items.every((question) => {
+          const seenKo = new Set([question.ko]); const seenJp = new Set([question.jp]);
+          for (const candidate of items) {
+            if (seenKo.has(candidate.ko) || seenJp.has(candidate.jp)) continue;
+            seenKo.add(candidate.ko); seenJp.add(candidate.jp);
+            if (routeDirections[route] === "jp-ko" ? seenKo.size >= 4 : seenJp.size >= 4) return true;
+          }
+          return false;
+        });
         const seen = new Set(items.filter((item) => {
           const stats = progressData.wordStats[item.ko];
           return stats && (Number(stats.correct) > 0 || Number(stats.wrong) > 0);
         }).map((item) => item.ko)).size;
-        const available = items.length > 0;
+        const round = progressData.challenges[`${route}|${category.id}|${level}`] || {};
+        const available = items.length > 0 && hasFourChoices;
         const unlocked = available && level <= progressData.unlockedLevel;
         const node = document.createElement("button"); node.type = "button";
-        node.className = "quiz-level-node" + (unlocked ? " is-open" : " is-locked") + (available && seen >= items.length ? " is-complete" : seen ? " is-visited" : "");
+        node.className = "quiz-level-node" + (unlocked ? " is-open" : " is-locked") + (round.cleared ? " is-complete" : round.attempts || seen ? " is-visited" : "");
         node.disabled = !unlocked;
-        node.setAttribute("aria-label", available
-          ? category.name + "、レベル" + level + "、" + items.length + "問、" + (unlocked ? "クイズを始める" : "レベル" + level + "は未解放")
-          : category.name + "、レベル" + level + "、問題準備中");
-        const badge = document.createElement("span"); badge.className = "level-node-badge"; badge.textContent = unlocked ? (available && seen >= items.length ? "✓" : String(level)) : available ? "🔒" : "·";
+        node.setAttribute("aria-label", !items.length
+          ? category.name + "、レベル" + level + "、問題準備中"
+          : !hasFourChoices ? category.name + "、レベル" + level + "、4択問題を準備中"
+            : category.name + "、レベル" + level + "、" + items.length + "問、" + (unlocked ? "チャレンジを始める" : "レベル" + level + "は未解放"));
+        const badge = document.createElement("span"); badge.className = "level-node-badge"; badge.textContent = round.cleared ? "✓" : unlocked ? String(level) : available ? "🔒" : "·";
         const label = document.createElement("strong"); label.textContent = "Lv." + level;
-        const detail = document.createElement("small"); detail.textContent = !available ? "準備中" : !unlocked ? "未解放" : seen ? seen + "/" + items.length + " 学習" : items.length + " 問";
+        const detail = document.createElement("small"); detail.textContent = !items.length ? "準備中" : !hasFourChoices ? "4択準備中" : !unlocked ? "未解放" : round.cleared ? `クリア · 最高${round.bestAccuracy}%` : round.attempts ? `挑戦${round.attempts}回 · 最高${round.bestAccuracy}%` : seen ? seen + "/" + items.length + " 学習" : items.length + "問";
         node.append(badge, label, detail);
         if (unlocked) node.addEventListener("click", () => {
           const params = new URLSearchParams({ route, category: category.id, level: String(level), format, direction: routeDirections[route] });
@@ -147,6 +166,7 @@
       const active = option === button;
       option.classList.toggle("active", active); option.setAttribute("aria-pressed", String(active));
     });
+    renderQuizRoute(route);
   }));
   function makeHeading(eyebrow, title, text) {
     const header = document.createElement("header"); header.className = "lesson-heading";

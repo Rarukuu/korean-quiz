@@ -983,3 +983,42 @@ button:disabled{
 }
 /* Entry point context for quizzes opened from the journey map. */
 .quiz-route-notice{margin:0 0 14px;padding:11px 14px;border:1px solid #cde3d1;border-radius:12px;background:#edf7ef;color:#2f6b4b;font-weight:750;line-height:1.5}
+
+/* Map-only quiz stops use the same warm journey-map atmosphere. */
+body.map-challenge-active{min-height:100vh;background:radial-gradient(ellipse at 12% 15%,#f4e8cb 0 10%,transparent 10.5%),radial-gradient(ellipse at 90% 76%,#dcece0 0 13%,transparent 13.5%),linear-gradient(145deg,#e8f1e2,#f7f1df 48%,#e3efe7);padding:18px}
+body.map-challenge-active .quiz-container{max-width:760px;border:1px solid #d9e5d9;border-top:5px solid #70a782;border-radius:26px;background:#fffdf9ed;box-shadow:0 18px 50px #334b7020}
+body.map-challenge-active .quiz-navigation{text-align:left}
+body.map-challenge-active .quiz-navigation .home-link{display:inline-block;padding:8px 12px;border-radius:99px;background:#fff;color:#476c55;font-weight:750;text-decoration:none}
+.map-challenge-intro,.map-challenge-result{position:relative;overflow:hidden;margin:18px 0;padding:clamp(22px,5vw,38px);border:1px solid #d5e5d7;border-radius:25px;background:radial-gradient(ellipse at 90% 10%,#f5e5c7 0 16%,transparent 16.5%),linear-gradient(135deg,#f1f7e9,#e5f1e6 54%,#f8eedb);text-align:left;box-shadow:inset 0 0 0 6px #ffffff5c,0 12px 32px #344b7012}
+.map-challenge-intro:after,.map-challenge-result:after{position:absolute;right:-24px;bottom:-65px;width:190px;height:120px;border:12px dashed #ffffff91;border-radius:50%;content:"";transform:rotate(-26deg);pointer-events:none}
+.map-eyebrow{margin:0 0 8px;color:#6c9576;font-size:.72rem;font-weight:900;letter-spacing:.16em}
+.map-challenge-intro h2,.map-challenge-result h2{position:relative;z-index:1;margin:0 0 10px;color:#2d4a39;font-size:clamp(1.75rem,5vw,2.45rem)}
+.map-challenge-description{position:relative;z-index:1;max-width:560px;color:#596b60;line-height:1.75}
+.map-challenge-meta{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 24px}
+.map-challenge-meta span{padding:7px 11px;border:1px solid #d8e5d8;border-radius:99px;background:#ffffffb8;color:#42694e;font-size:.81rem;font-weight:800}
+.challenge-count-label{position:relative;z-index:1;display:block;margin:0 0 7px;color:#3f5947;font-weight:800}
+.challenge-count-select{position:relative;z-index:1;width:min(100%,360px);min-height:48px;padding:10px 13px;border:1px solid #b8ceb9;border-radius:13px;background:white;color:#33483a;font:inherit}
+#routeChallengeCountHelp{position:relative;z-index:1;max-width:540px;margin:8px 0;color:#718076;line-height:1.6}
+.route-start-button{position:relative;z-index:1;display:block;width:min(100%,420px);min-height:54px;margin-top:18px;padding:13px 18px;border:0;border-radius:15px;background:linear-gradient(110deg,#4b9169,#347655);color:white;font:inherit;font-weight:850;box-shadow:0 6px 14px #3476552e}
+.route-start-button:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px)}.route-start-button:disabled{background:#aebbb1;box-shadow:none;cursor:not-allowed}
+.map-challenge-progress{margin:8px 0 17px;padding:13px 15px;border:1px solid #d7e6d8;border-radius:16px;background:#f4f8ee}
+.map-challenge-progress>div:first-child{display:flex;justify-content:space-between;gap:12px;color:#44624b;font-size:.86rem;font-weight:800}
+.map-challenge-progress-track{height:8px;margin-top:10px;overflow:hidden;border-radius:99px;background:#dce5d8}
+.map-challenge-progress-track span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e8ae66,#6cae7b);transition:width .2s}
+.challenge-result-score{position:relative;z-index:1;margin:14px 0;font-size:clamp(2rem,8vw,3rem);font-weight:900;color:#31704d}
+.challenge-result-actions{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:24px}
+.challenge-result-actions .route-start-button{margin:0}
+.route-map-return{padding:12px 15px;border:1px solid #c8d9ca;border-radius:13px;background:#ffffffb8;color:#38674a;font-weight:800;text-decoration:none}
+body.map-challenge-active .quiz-stats,body.map-challenge-active .current-level-goal,body.map-challenge-active #instructions,body.map-challenge-active #questionHelp{display:none}
+body.map-challenge-active #quizScreen{padding-top:10px}
+body.map-challenge-active #quizScreen #koreanText{margin:14px auto 18px;color:#283f32}
+body.map-challenge-active #quizScreen #questionText{margin:14px 0 8px;color:#506657;font-size:1.05rem}
+body.map-challenge-active #quizScreen #choices{margin-top:18px}
+body.map-challenge-active .choice{border-color:#d8e5d9;border-radius:15px;background:#fffefa;box-shadow:0 4px 12px #344b700c}
+body.map-challenge-active .choice:hover:not(:disabled){border-color:#78a984;background:#f4faf3}
+body.map-challenge-active .explanation-panel{border-color:#d3e4d5;border-radius:18px;background:#f6faf3}
+body.map-challenge-active #quickNextBtn{background:#397d57}
+body.map-challenge-active #questionNavigationControls{display:none}
+body.map-challenge-active .question-navigation-controls .secondary{display:none}
+body.map-challenge-active .question-navigation-controls #nextBtn{display:none}
+@media(max-width:540px){body.map-challenge-active{padding:9px}body.map-challenge-active .quiz-container{padding:16px 14px;border-radius:20px}.map-challenge-intro,.map-challenge-result{margin:12px 0;padding:22px 18px;border-radius:20px}.challenge-result-actions{align-items:stretch;flex-direction:column}.challenge-result-actions>*{width:100%;text-align:center}.map-challenge-progress{padding:11px 12px}}
