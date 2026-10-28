@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff8ef">
   <title>Korean Journey — 物語で旅する韓国語</title>
-  <link rel="stylesheet" href="journey.css?v=map-lesson-card-20261027">
+  <link rel="stylesheet" href="journey.css?v=route-progress-20261027">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="journey-data.js?v=journey-episodes-20261027" defer></script>
   <script src="questions.js?v=map-lesson-card-20261027" defer></script>
-  <script src="journey.js?v=map-lesson-card-20261027" defer></script>
+  <script src="journey.js?v=route-progress-20261027" defer></script>
 </head>
 <body>
   <main class="journey-app">
@@ -24,12 +24,22 @@
     <section id="homeScreen" class="screen">
       <section class="hero">
         <p class="eyebrow">YOUR KOREAN JOURNEY</p>
-        <h1>マップを進みながら、<br>韓国語を身につけよう。</h1>
-        <p>物語、単語、会話。それぞれのルートで場所を選んで挑戦しよう。</p>
-        <div class="progress-card">
+        <h1><span id="heroTitleFirst">マップを進みながら、</span><br><span id="heroTitleSecond">韓国語を身につけよう。</span></h1>
+        <p id="heroDescription">物語、単語、会話。それぞれのルートで場所を選んで挑戦しよう。</p>
+        <div id="storyProgressCard" class="progress-card">
           <div class="progress-label"><strong>あなたの旅</strong><span id="progressText">0 / 10 話クリア</span></div>
           <div class="progress-track"><span id="progressFill"></span></div>
           <p id="nextGoal">最初の物語から始めましょう。</p>
+        </div>
+        <div id="wordProgressCard" class="progress-card route-progress-card" hidden>
+          <div class="progress-label"><strong>単語ルートの進み具合</strong><span id="wordProgressText">0 / 0 カテゴリー完了</span></div>
+          <div class="progress-track"><span id="wordProgressFill"></span></div>
+          <p id="wordProgressDetail">レベルスポットをクリアすると進捗が記録されます。</p>
+        </div>
+        <div id="conversationProgressCard" class="progress-card route-progress-card" hidden>
+          <div class="progress-label"><strong>会話ルートの進み具合</strong><span id="conversationProgressText">0 / 0 会話テーマ完了</span></div>
+          <div class="progress-track"><span id="conversationProgressFill"></span></div>
+          <p id="conversationProgressDetail">会話スポットをクリアすると進捗が記録されます。</p>
         </div>
       </section>
 

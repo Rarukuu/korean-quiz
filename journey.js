@@ -26,6 +26,7 @@
   ];
   const routeDirections = { word: "ko-jp", conversation: "ko-jp" };
   let progress = loadProgress();
+  let selectedRoute = "story";
   let activeEpisode = null;
   let activeStoryMistake = false;
   let questionIndex = 0;
@@ -40,6 +41,80 @@
   function saveProgress() {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(progress)); return true; }
     catch { return false; }
+  }
+  function isPerfectRound(round) {
+    return Boolean(round && (round.perfect === true ||
+      (Number(round.bestAccuracy) === 100 && Number(round.lastCount) > 0 && Number(round.lastCount) <= 100)));
+  }
+  function routeProgressSummary(route) {
+    const format = route === "word" ? "word" : "conversation";
+    const saved = readQuizProgress();
+    const categories = quizCategories.map((category) => {
+      const categoryItems = QUIZ_DATA.filter((item) => item.category === category.id && item.format === format);
+      const levels = [];
+      for (let level = 1; level <= 5; level += 1) {
+        const items = categoryItems.filter((item) => Number(item.level) === level);
+        if (!items.length) continue;
+        const hasFourChoices = items.every((question) => {
+          const seenKo = new Set([question.ko]);
+          const seenJp = new Set([question.jp]);
+          for (const candidate of items) {
+            if (seenKo.has(candidate.ko) || seenJp.has(candidate.jp)) continue;
+            seenKo.add(candidate.ko);
+            seenJp.add(candidate.jp);
+            if (routeDirections[route] === "jp-ko" ? seenKo.size >= 4 : seenJp.size >= 4) return true;
+          }
+          return false;
+        });
+        if (hasFourChoices) levels.push(level);
+      }
+      return { id: category.id, levels };
+    }).filter((category) => category.levels.length);
+
+    let completedSpots = 0;
+    const completedCategories = categories.filter((category) => category.levels.every((level) => {
+      const round = saved.challenges[`${route}|${category.id}|${level}`] || {};
+      const perfect = isPerfectRound(round);
+      if (perfect) completedSpots += 1;
+      return perfect;
+    })).length;
+    const totalSpots = categories.reduce((total, category) => total + category.levels.length, 0);
+    return { completedCategories, totalCategories: categories.length, completedSpots, totalSpots };
+  }
+  function updateRouteHero(route) {
+    const story = route === "story";
+    const word = route === "word";
+    $("heroTitleFirst").textContent = "マップを進みながら、";
+    $("heroTitleSecond").textContent = story ? "韓国語を身につけよう。" : word ? "韓国語の単語を身につけよう。" : "韓国語の会話を身につけよう。";
+    $("heroDescription").textContent = story
+      ? "物語、単語、会話。それぞれのルートで場所を選んで挑戦しよう。"
+      : word
+        ? "カテゴリー別の単語スポットをクリアして、レベルを上げながら進もう。"
+        : "会話テーマごとのスポットをクリアして、短い表現を身につけながら進もう。";
+    $("storyProgressCard").hidden = !story;
+    $("wordProgressCard").hidden = !word;
+    $("conversationProgressCard").hidden = story || word;
+    if (story) return;
+
+    const summary = routeProgressSummary(route);
+    const countText = word
+      ? `${summary.completedCategories} / ${summary.totalCategories} カテゴリー完了`
+      : `${summary.completedCategories} / ${summary.totalCategories} 会話テーマ完了`;
+    const detailText = word
+      ? `レベルスポット ${summary.completedSpots} / ${summary.totalSpots} クリア`
+      : `会話スポット ${summary.completedSpots} / ${summary.totalSpots} クリア`;
+    const percent = summary.totalCategories
+      ? Math.round(summary.completedCategories / summary.totalCategories * 100)
+      : 0;
+    if (word) {
+      $("wordProgressText").textContent = countText;
+      $("wordProgressDetail").textContent = detailText;
+      $("wordProgressFill").style.width = percent + "%";
+    } else {
+      $("conversationProgressText").textContent = countText;
+      $("conversationProgressDetail").textContent = detailText;
+      $("conversationProgressFill").style.width = percent + "%";
+    }
   }
   function showScreen(name) {
     $$(".screen").forEach((el) => { el.hidden = el.id !== name + "Screen"; });
@@ -56,6 +131,7 @@
     $("#progressText").textContent = progress.cleared.length + " / " + EPISODES.length + " 話クリア";
     $("#progressFill").style.width = Math.min(100, progress.cleared.length / Math.max(EPISODES.length, 1) * 100) + "%";
     $("#nextGoal").textContent = currentIndex >= 0 ? "次の目的地：" + EPISODES[currentIndex].title + " · 場所を選んで出発！" : "初級ルートをすべてクリアしました。旅の記録を振り返りましょう。";
+    updateRouteHero(selectedRoute);
     const map = $("#storyMap"); map.replaceChildren();
     EPISODES.forEach((ep, index) => {
       const open = index < unlocked, cleared = progress.cleared.includes(ep.id), current = index === currentIndex;
@@ -156,6 +232,8 @@
   }
   function selectJourneyRoute(route) {
     const selected = ["story", "word", "conversation"].includes(route) ? route : "story";
+    selectedRoute = selected;
+    updateRouteHero(selected);
     $("#storyRoutePanel").hidden = selected !== "story";
     $("#wordRoutePanel").hidden = selected !== "word";
     $("#conversationRoutePanel").hidden = selected !== "conversation";

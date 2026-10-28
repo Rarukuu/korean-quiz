@@ -85,5 +85,9 @@
 .quiz-level-node.is-open:not(:disabled):hover .level-node-badge{transform:scale(1.11);box-shadow:0 4px 13px #33415530}
 .level-node-badge{transition:transform .16s,box-shadow .16s}.quiz-level-node>strong{font-size:.68rem;white-space:nowrap}.quiz-level-node>small{min-height:1.4em;color:#788783;font-size:.57rem;line-height:1.25}
 .quiz-route-notice{margin:0 0 16px;padding:11px 14px;border:1px solid #cee4d5;border-radius:14px;background:#eff8f0;color:#326c4f;font-size:.88rem;font-weight:800}
+.route-progress-card[hidden]{display:none}
+#wordProgressFill{background:linear-gradient(90deg,#69b98a,#337b62)}
+#conversationProgressFill{background:linear-gradient(90deg,#7ea4de,#586da8)}
+.route-progress-card .progress-label span{text-align:right}
 @media(max-width:760px){.journey-route-tabs{gap:8px}.journey-route-tab{grid-template-columns:1fr;justify-items:start;gap:7px;min-height:130px;padding:12px}.journey-route-tab>span{grid-row:auto;width:36px;height:36px;border-radius:12px;font-size:1.15rem}.journey-route-tab small{font-size:.67rem}.quiz-route-map{grid-template-columns:1fr;gap:12px}.quiz-zone{padding:16px}}
 @media(max-width:420px){.journey-route-tabs{grid-template-columns:1fr;gap:8px;margin:22px 0 18px}.journey-route-tab{grid-template-columns:38px 1fr;grid-template-rows:auto auto;align-items:center;min-height:68px;padding:10px 12px}.journey-route-tab>span{grid-row:1 / span 2;width:36px;height:36px}.journey-route-tab strong{font-size:.88rem}.journey-route-tab small{font-size:.66rem}.quiz-level-track{gap:3px}.quiz-zone{padding:14px 10px}.level-node-badge{width:32px;height:32px}.quiz-route-panel .section-heading{align-items:center}}
