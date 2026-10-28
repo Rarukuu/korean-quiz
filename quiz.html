@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Korean Quiz - クイズ</title>
-  <link rel="stylesheet" href="style.css?v=map-perfect-progress-20261027">
+  <link rel="stylesheet" href="style.css?v=map-lesson-card-20261027">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="questions.js?v=conversation-word-l1-20261007" defer></script>
-  <script src="app.js?v=map-perfect-progress-20261027" defer></script>
+  <script src="app.js?v=map-lesson-card-20261027" defer></script>
 </head>
 <body>
   <main class="container quiz-container">
@@ -36,6 +36,17 @@
       </div>
     </section>
 
+    <section id="routeChallengePlay" class="route-challenge-play" hidden aria-label="マップのクイズ">
+      <p id="quizRouteNotice" class="quiz-route-notice" role="status"></p>
+      <div id="mapChallengeProgress" class="map-challenge-progress">
+        <div><span id="mapChallengeProgressLabel"></span><strong id="mapChallengeScore"></strong></div>
+        <div class="map-challenge-progress-track"><span id="mapChallengeProgressFill"></span></div>
+      </div>
+      <section id="mapChallengeQuestionCard" class="lesson-card quiz-card map-question-card" aria-label="問題">
+        <p id="mapChallengeQuestionCount" class="quiz-count"></p>
+      </section>
+    </section>
+
     <nav class="screen-nav" id="screenNav" aria-label="クイズメニュー">
       <button type="button" class="screen-tab active" id="quizTab" aria-pressed="true" aria-controls="quizScreen" data-screen-target="quizScreen">クイズ</button>
       <button type="button" class="screen-tab" id="progressTab" aria-pressed="false" aria-controls="progressScreen" data-screen-target="progressScreen">学習記録</button>
@@ -44,11 +55,6 @@
     </nav>
 
     <section id="quizScreen" class="app-screen" aria-labelledby="quizTab">
-      <p id="quizRouteNotice" class="quiz-route-notice" role="status" hidden></p>
-      <div id="mapChallengeProgress" class="map-challenge-progress" hidden>
-        <div><span id="mapChallengeProgressLabel"></span><strong id="mapChallengeScore"></strong></div>
-        <div class="map-challenge-progress-track"><span id="mapChallengeProgressFill"></span></div>
-      </div>
       <div class="stats quiz-stats" aria-live="polite">
         <div id="level">🎯 Level 1</div>
         <div id="streak">🔥 Streak: 0</div>

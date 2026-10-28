@@ -58,6 +58,7 @@
   let translationRequestId = 0;
   let mapRouteConfig = null;
   let mapChallenge = null;
+  let mapChallengeCardMounted = false;
 
   function validQuestion(question) {
     return question && typeof question.ko === "string" &&
@@ -314,7 +315,18 @@
       (Number(previous.bestAccuracy) === 100 && Number(previous.lastCount) > 0 && Number(previous.lastCount) <= 100)));
   }
 
+  function mountMapChallengeCard() {
+    if (mapChallengeCardMounted) return;
+    const card = $("mapChallengeQuestionCard");
+    [$("koreanText"), $("audioBtn"), $("audioNotice"), $("questionText"), $("choices"), $("result"), $("quickNextBtn")]
+      .forEach((element) => card.appendChild(element));
+    $("koreanText").classList.add("quiz-korean");
+    $("choices").classList.add("answer-choices");
+    mapChallengeCardMounted = true;
+  }
+
   function prepareMapChallenge(config) {
+    mountMapChallengeCard();
     mapRouteConfig = config;
     const pool = getMapChallengePool(config);
     const categoryLabel = categorySelect.options[[...categorySelect.options].findIndex((option) => option.value === config.category)]?.textContent || config.category;
@@ -336,9 +348,10 @@
       : `このスポットの${pool.length}問をすべて出題します。同じ問題は1回の挑戦で繰り返しません。満点クリアで次のレベルが開きます。`;
     $("routeChallengeIntro").hidden = false;
     $("routeChallengeResult").hidden = true;
+    $("routeChallengePlay").hidden = true;
     $("quizScreen").hidden = true;
     $("screenNav").hidden = true;
-    $("mapChallengeProgress").hidden = true;
+    $("mapChallengeProgress").hidden = false;
     $("quizRouteNotice").textContent = `${isWordRoute ? "単語ルート" : "会話ルート"} · ${categoryLabel} · Level ${config.level}`;
     $("quizRouteNotice").hidden = false;
     const homeLink = $(".quiz-navigation .home-link");
@@ -356,7 +369,8 @@
     mapChallenge = { ...mapRouteConfig, questions, index: 0, correct: 0 };
     $("routeChallengeIntro").hidden = true;
     $("routeChallengeResult").hidden = true;
-    $("quizScreen").hidden = false;
+    $("routeChallengePlay").hidden = false;
+    $("quizScreen").hidden = true;
     $("mapChallengeProgress").hidden = false;
     loadQuestion();
   }
@@ -387,6 +401,7 @@
     $("routeChallengeResultMessage").textContent = cleared
       ? "このスポットの道をクリアしました。旅マップに戻ると、ベスト記録が残っています。"
       : "このスポットの問題だけでもう一度挑戦できます。満点で次のレベルが開きます。";
+    $("routeChallengePlay").hidden = true;
     $("quizScreen").hidden = true;
     $("mapChallengeProgress").hidden = true;
     $("routeChallengeIntro").hidden = true;
@@ -507,14 +522,17 @@
     $("nextBtn").textContent = mapChallenge && mapChallenge.index === mapChallenge.questions.length - 1 ? "結果を見る" : "➡️ 次の問題";
     $("quickNextBtn").hidden = !state.answered;
     $("quickNextBtn").disabled = !state.answered;
-    $("quickNextBtn").textContent = mapChallenge && mapChallenge.index === mapChallenge.questions.length - 1 ? "🏁 結果を見る" : "➡️ 次の問題へ";
-    document.body.classList.toggle("has-quick-next", state.answered);
+    $("quickNextBtn").textContent = mapChallenge
+      ? (mapChallenge.index === mapChallenge.questions.length - 1 ? "結果を見る →" : "次へ →")
+      : "➡️ 次の問題へ";
+    document.body.classList.toggle("has-quick-next", state.answered && !mapChallenge);
   }
 
   function updateMapChallengeProgress() {
     if (!mapChallenge) return;
     const completedCount = mapChallenge.index + (state.answered ? 1 : 0);
     $("mapChallengeProgressLabel").textContent = `問題 ${Math.min(mapChallenge.index + 1, mapChallenge.questions.length)} / ${mapChallenge.questions.length}`;
+    $("mapChallengeQuestionCount").textContent = `${Math.min(mapChallenge.index + 1, mapChallenge.questions.length)} / ${mapChallenge.questions.length}`;
     $("mapChallengeScore").textContent = `正解 ${mapChallenge.correct}問`;
     $("mapChallengeProgressFill").style.width = `${completedCount / mapChallenge.questions.length * 100}%`;
   }
@@ -611,7 +629,7 @@
           speakChoice(answer);
         });
         const answerButton = document.createElement("button");
-        answerButton.className = "choice choice-answer";
+        answerButton.className = mapChallenge ? "choice choice-button choice-answer" : "choice choice-answer";
         answerButton.type = "button";
         answerButton.textContent = answer.ko;
         answerButton.addEventListener("click", () => checkAnswer(answer));
@@ -620,7 +638,7 @@
         return;
       }
       const button = document.createElement("button");
-      button.className = "choice";
+      button.className = mapChallenge ? "choice choice-button" : "choice";
       button.type = "button";
       button.textContent = answer;
       button.addEventListener("click", () => checkAnswer(answer));
@@ -1140,14 +1158,26 @@
       if (state.isReviewQuestion) state.reviewQueue = state.reviewQueue.filter((entry) => entry.question.ko !== question.ko);
       if (mapChallenge) void playCorrectSound();
       else if (!japaneseToKorean) void playCorrectSound();
-      renderAnswerExplanation(question, correct);
+      if (mapChallenge) {
+        const answerText = japaneseToKorean ? question.ko : question.jp;
+        const breakdown = Array.isArray(question.explanation)
+          ? question.explanation.map((part) => `${part.ko} → ${part.jp}`).join(" · ")
+          : question.note || "";
+        $("result").textContent = `正解！「${answerText}」${breakdown ? ` — ${breakdown}` : ""}`;
+      } else renderAnswerExplanation(question, correct);
     } else {
       state.streak = 0;
       stats.wrong += 1;
       queueForReview(question);
       if (mapChallenge) void playChallengeWrongSound();
       else if (!japaneseToKorean) void playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
-      renderAnswerExplanation(question, correct);
+      if (mapChallenge) {
+        const answerText = japaneseToKorean ? question.ko : question.jp;
+        const breakdown = Array.isArray(question.explanation)
+          ? question.explanation.map((part) => `${part.ko} → ${part.jp}`).join(" · ")
+          : question.note || "";
+        $("result").textContent = `不正解。正解は「${answerText}」です。${breakdown ? ` ${breakdown}` : ""}`;
+      } else renderAnswerExplanation(question, correct);
     }
     if (timedOut) $("result").textContent = "⏰ 時間切れ！不正解";
     const historyEntry = state.questionHistory[state.questionHistoryIndex];
