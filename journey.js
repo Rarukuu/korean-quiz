@@ -161,6 +161,13 @@
       const scene = document.createElement("span"); scene.className = "stop-scene"; scene.textContent = ep.scene;
       const state = document.createElement("span"); state.className = "stop-state"; state.textContent = cleared ? "✓ 到着済み · もう一度学ぶ" : current ? "次の目的地 · 出発する →" : open ? "開放中 · いつでも出発できます" : "🔒 前の物語をクリアして開放";
       details.append(location, title, scene, state); button.append(marker, number, details); stop.append(button);
+      if (cleared) {
+        const stamp = document.createElement("span"); stamp.className = "travel-stamp";
+        stamp.setAttribute("aria-label", "旅ノートに到着スタンプを記録済み");
+        const stampLabel = document.createElement("small"); stampLabel.textContent = "旅ノート";
+        const stampTitle = document.createElement("strong"); stampTitle.textContent = "到着";
+        stamp.append(stampLabel, stampTitle); button.append(stamp);
+      }
       if (open) button.addEventListener("click", () => openEpisode(ep));
       map.append(stop);
     });

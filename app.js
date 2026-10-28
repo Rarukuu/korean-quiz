@@ -546,11 +546,12 @@
 
   function updateMapChallengeProgress() {
     if (!mapChallenge) return;
-    const completedCount = mapChallenge.index + (state.answered ? 1 : 0);
-    $("mapChallengeProgressLabel").textContent = `問題 ${Math.min(mapChallenge.index + 1, mapChallenge.questions.length)} / ${mapChallenge.questions.length}`;
+    const total = mapChallenge.questions.length;
+    const correctCount = Math.min(mapChallenge.correct, total);
+    $("mapChallengeProgressLabel").textContent = `正解ゲージ ${correctCount} / ${total}`;
     $("mapChallengeQuestionCount").textContent = `${Math.min(mapChallenge.index + 1, mapChallenge.questions.length)} / ${mapChallenge.questions.length}`;
-    $("mapChallengeScore").textContent = `正解 ${mapChallenge.correct}問`;
-    $("mapChallengeProgressFill").style.width = `${completedCount / mapChallenge.questions.length * 100}%`;
+    $("mapChallengeScore").textContent = `正解 ${correctCount}問`;
+    $("mapChallengeProgressFill").style.width = `${total ? correctCount / total * 100 : 0}%`;
   }
 
   function loadQuestion({ historyEntry = null, keepHistory = false } = {}) {

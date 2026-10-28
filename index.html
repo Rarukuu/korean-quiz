@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff8ef">
   <title>Korean Journey — 物語で旅する韓国語</title>
-  <link rel="stylesheet" href="journey.css?v=hangul-route-v1-20261027">
+  <link rel="stylesheet" href="journey.css?v=seoul-adventure-map-v1-20261028">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="journey-data.js?v=journey-episodes-20261027" defer></script>
   <script src="questions.js?v=question-bank-map-20261027" defer></script>
-  <script src="journey.js?v=hangul-route-v1-20261027" defer></script>
+  <script src="journey.js?v=seoul-adventure-map-v1-20261028" defer></script>
 </head>
 <body>
   <main class="journey-app">
@@ -62,8 +62,12 @@
           <div class="map-legend" aria-label="マップの見方"><span><i class="legend-dot current"></i>次の目的地</span><span><i class="legend-dot cleared"></i>到着済み</span><span><i class="legend-dot locked"></i>これから</span></div>
           <div class="map-landscape">
             <span class="map-label label-north">北村の路地</span><span class="map-label label-river">漢江</span><span class="map-label label-south">南山のふもと</span>
+            <span class="map-landmark landmark-palace" aria-hidden="true"><span>🏯</span><small>宮殿エリア</small></span>
+            <span class="map-landmark landmark-market" aria-hidden="true"><span>🏮</span><small>市場の小道</small></span>
+            <span class="map-landmark landmark-mountain" aria-hidden="true"><span>⛰️</span><small>南山の展望台</small></span>
             <svg class="route-line" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
               <path d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
+              <path class="route-line-center" d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
             </svg>
             <div id="storyMap" class="story-map" aria-label="物語を進めるソウルの旅ルート"></div>
             <span class="map-sparkle sparkle-one" aria-hidden="true">✦</span><span class="map-sparkle sparkle-two" aria-hidden="true">✦</span>
