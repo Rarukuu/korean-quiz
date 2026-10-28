@@ -4,6 +4,7 @@
   const QUIZ_DATA = typeof quiz !== "undefined" ? quiz : [];
   const SAVE_KEY = "koreanJourneyProgressV1";
   const QUIZ_SAVE_KEY = "koreanQuestData";
+  const ROUTE_SAVE_KEY = "koreanJourneySelectedRouteV1";
   const MEDIA_DB = "koreanJourneyAlbum";
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
@@ -87,6 +88,8 @@
     const story = route === "story";
     const word = route === "word";
     const hangul = route === "hangul";
+    const routeNames = { story: "物語の旅", word: "単語ルート", conversation: "会話ルート", hangul: "ハングル入門" };
+    $("#activeRouteLabel").textContent = routeNames[route] || routeNames.story;
     $("#heroTitleFirst").textContent = "マップを進みながら、";
     $("#heroTitleSecond").textContent = story ? "韓国語を身につけよう。" : word ? "韓国語の単語を身につけよう。" : hangul ? "ハングルを読めるようになろう。" : "韓国語の会話を身につけよう。";
     $("#heroDescription").textContent = story
@@ -282,6 +285,7 @@
   function selectJourneyRoute(route) {
     const selected = ["story", "word", "conversation", "hangul"].includes(route) ? route : "story";
     selectedRoute = selected;
+    try { localStorage.setItem(ROUTE_SAVE_KEY, selected); } catch { /* Route choice is optional to persist. */ }
     updateRouteHero(selected);
     $("#storyRoutePanel").hidden = selected !== "story";
     $("#wordRoutePanel").hidden = selected !== "word";
@@ -291,10 +295,31 @@
       const active = button.dataset.route === selected;
       button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active));
     });
+    const routeToggle = $("#routeMenuToggle");
+    const routeMenu = $("#journeyRouteMenu");
+    routeMenu.hidden = true;
+    routeToggle.setAttribute("aria-expanded", "false");
     if (selected === "word" || selected === "conversation") renderQuizRoute(selected);
     if (selected === "hangul") renderHangulRoute();
   }
+  $("#routeMenuToggle").addEventListener("click", () => {
+    const menu = $("#journeyRouteMenu");
+    const open = menu.hidden;
+    menu.hidden = !open;
+    $("#routeMenuToggle").setAttribute("aria-expanded", String(open));
+  });
   $$(".journey-route-tab").forEach((button) => button.addEventListener("click", () => selectJourneyRoute(button.dataset.route)));
+  document.addEventListener("click", (event) => {
+    if (event.target.closest(".map-route-picker")) return;
+    $("#journeyRouteMenu").hidden = true;
+    $("#routeMenuToggle").setAttribute("aria-expanded", "false");
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    $("#journeyRouteMenu").hidden = true;
+    $("#routeMenuToggle").setAttribute("aria-expanded", "false");
+    $("#routeMenuToggle").focus();
+  });
   $$(".direction-option").forEach((button) => button.addEventListener("click", () => {
     const route = button.closest("#wordRoutePanel") ? "word" : "conversation";
     routeDirections[route] = button.dataset.direction === "jp-ko" ? "jp-ko" : "ko-jp";
@@ -494,7 +519,12 @@
   $$(".nav-button").forEach((button) => button.addEventListener("click", () => showScreen(button.dataset.screen.replace("Screen", ""))));
   $$('[data-go-home]').forEach((button) => button.addEventListener("click", () => showScreen("home")));
   const requestedRoute = new URLSearchParams(window.location.search).get("route");
-  selectedRoute = ["word", "conversation", "hangul"].includes(requestedRoute) ? requestedRoute : "story";
+  let rememberedRoute = "story";
+  try {
+    const savedRoute = localStorage.getItem(ROUTE_SAVE_KEY);
+    if (["story", "word", "conversation", "hangul"].includes(savedRoute)) rememberedRoute = savedRoute;
+  } catch { /* Use the story map when browser storage is unavailable. */ }
+  selectedRoute = ["story", "word", "conversation", "hangul"].includes(requestedRoute) ? requestedRoute : rememberedRoute;
   renderHome();
   if (selectedRoute !== "story") selectJourneyRoute(selectedRoute);
 })();

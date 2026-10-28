@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff8ef">
   <title>Korean Journey — 物語で旅する韓国語</title>
-  <link rel="stylesheet" href="journey.css?v=seoul-adventure-map-v1-20261028">
+  <link rel="stylesheet" href="journey.css?v=map-first-v2-20261028">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="journey-data.js?v=journey-episodes-20261027" defer></script>
   <script src="questions.js?v=question-bank-map-20261027" defer></script>
-  <script src="journey.js?v=seoul-adventure-map-v1-20261028" defer></script>
+  <script src="journey.js?v=map-first-v2-20261028" defer></script>
 </head>
 <body>
   <main class="journey-app">
@@ -48,12 +48,17 @@
         </div>
       </section>
 
-      <nav class="journey-route-tabs" aria-label="学習ルート">
-        <button type="button" class="journey-route-tab active" data-route="story" aria-pressed="true"><span>🗺️</span><strong>物語の旅</strong><small>物語と実践ミッション</small></button>
-        <button type="button" class="journey-route-tab" data-route="word" aria-pressed="false"><span>📚</span><strong>単語ルート</strong><small>カテゴリー別に単語を学ぶ</small></button>
-        <button type="button" class="journey-route-tab" data-route="conversation" aria-pressed="false"><span>💬</span><strong>会話ルート</strong><small>短文・会話を場面別に練習</small></button>
-        <button type="button" class="journey-route-tab" data-route="hangul" aria-pressed="false"><span>🔤</span><strong>ハングル入門</strong><small>文字から読み方を練習</small></button>
-      </nav>
+      <div class="map-route-picker">
+        <button id="routeMenuToggle" class="route-menu-toggle" type="button" aria-expanded="false" aria-controls="journeyRouteMenu">
+          <span aria-hidden="true">🗺️</span><span>ルートを変更</span><strong id="activeRouteLabel">物語の旅</strong><span class="route-menu-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <nav id="journeyRouteMenu" class="journey-route-menu" aria-label="学習マップを選ぶ" hidden>
+          <button type="button" class="journey-route-tab active" data-route="story" aria-pressed="true"><span>🗺️</span><strong>物語の旅</strong><small>物語と実践ミッション</small></button>
+          <button type="button" class="journey-route-tab" data-route="word" aria-pressed="false"><span>📚</span><strong>単語ルート</strong><small>カテゴリー別に単語を学ぶ</small></button>
+          <button type="button" class="journey-route-tab" data-route="conversation" aria-pressed="false"><span>💬</span><strong>会話ルート</strong><small>短文・会話を場面別に練習</small></button>
+          <button type="button" class="journey-route-tab" data-route="hangul" aria-pressed="false"><span>🔤</span><strong>ハングル入門</strong><small>文字から読み方を練習</small></button>
+        </nav>
+      </div>
 
       <div id="storyRoutePanel" class="journey-route-panel">
         <section class="map-section" aria-labelledby="mapTitle">
@@ -62,9 +67,12 @@
           <div class="map-legend" aria-label="マップの見方"><span><i class="legend-dot current"></i>次の目的地</span><span><i class="legend-dot cleared"></i>到着済み</span><span><i class="legend-dot locked"></i>これから</span></div>
           <div class="map-landscape">
             <span class="map-label label-north">北村の路地</span><span class="map-label label-river">漢江</span><span class="map-label label-south">南山のふもと</span>
-            <span class="map-landmark landmark-palace" aria-hidden="true"><span>🏯</span><small>宮殿エリア</small></span>
-            <span class="map-landmark landmark-market" aria-hidden="true"><span>🏮</span><small>市場の小道</small></span>
-            <span class="map-landmark landmark-mountain" aria-hidden="true"><span>⛰️</span><small>南山の展望台</small></span>
+            <span class="map-landmark landmark-palace" aria-hidden="true"><span>🏯</span><small>景福宮</small></span>
+            <span class="map-landmark landmark-market" aria-hidden="true"><span>🏮</span><small>広蔵市場</small></span>
+            <span class="map-landmark landmark-mountain" aria-hidden="true"><span>🗼</span><small>南山タワー</small></span>
+            <span class="map-landmark landmark-cafe" aria-hidden="true"><span>☕</span><small>弘大カフェ通り</small></span>
+            <span class="map-landmark landmark-hanok" aria-hidden="true"><span>🏘️</span><small>北村韓屋村</small></span>
+            <span class="map-landmark landmark-bridge" aria-hidden="true"><span>🌉</span><small>漢江の橋</small></span>
             <svg class="route-line" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
               <path d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
               <path class="route-line-center" d="M100 100 C155 58 235 58 300 100 S430 142 500 100 S635 58 700 100 S835 142 900 100 C930 185 875 240 900 310 C840 352 765 352 700 310 S570 268 500 310 S365 352 300 310 S165 268 100 310" />
