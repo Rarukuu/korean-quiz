@@ -135,7 +135,6 @@
   }
   function showScreen(name) {
     $$(".screen").forEach((el) => { el.hidden = el.id !== name + "Screen"; });
-    document.body.classList.toggle("map-screen-active", name === "home");
     $$(".nav-button").forEach((el) => el.classList.toggle("active", el.dataset.screen === name + "Screen"));
     if (name === "home") renderHome();
     if (name === "album") renderAlbum();
@@ -310,11 +309,6 @@
     $("#routeMenuToggle").setAttribute("aria-expanded", String(open));
   });
   $$(".journey-route-tab[data-route]").forEach((button) => button.addEventListener("click", () => selectJourneyRoute(button.dataset.route)));
-  $("[data-open-album]").addEventListener("click", () => {
-    $("#journeyRouteMenu").hidden = true;
-    $("#routeMenuToggle").setAttribute("aria-expanded", "false");
-    showScreen("album");
-  });
   document.addEventListener("click", (event) => {
     if (event.target.closest(".map-route-picker")) return;
     $("#journeyRouteMenu").hidden = true;
@@ -531,7 +525,6 @@
     if (["story", "word", "conversation", "hangul"].includes(savedRoute)) rememberedRoute = savedRoute;
   } catch { /* Use the story map when browser storage is unavailable. */ }
   selectedRoute = ["story", "word", "conversation", "hangul"].includes(requestedRoute) ? requestedRoute : rememberedRoute;
-  document.body.classList.add("map-screen-active");
   renderHome();
   if (selectedRoute !== "story") selectJourneyRoute(selectedRoute);
 })();
