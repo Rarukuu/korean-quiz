@@ -84,16 +84,16 @@
   function updateRouteHero(route) {
     const story = route === "story";
     const word = route === "word";
-    $("heroTitleFirst").textContent = "マップを進みながら、";
-    $("heroTitleSecond").textContent = story ? "韓国語を身につけよう。" : word ? "韓国語の単語を身につけよう。" : "韓国語の会話を身につけよう。";
-    $("heroDescription").textContent = story
+    $("#heroTitleFirst").textContent = "マップを進みながら、";
+    $("#heroTitleSecond").textContent = story ? "韓国語を身につけよう。" : word ? "韓国語の単語を身につけよう。" : "韓国語の会話を身につけよう。";
+    $("#heroDescription").textContent = story
       ? "物語、単語、会話。それぞれのルートで場所を選んで挑戦しよう。"
       : word
         ? "カテゴリー別の単語スポットをクリアして、レベルを上げながら進もう。"
         : "会話テーマごとのスポットをクリアして、短い表現を身につけながら進もう。";
-    $("storyProgressCard").hidden = !story;
-    $("wordProgressCard").hidden = !word;
-    $("conversationProgressCard").hidden = story || word;
+    $("#storyProgressCard").hidden = !story;
+    $("#wordProgressCard").hidden = !word;
+    $("#conversationProgressCard").hidden = story || word;
     if (story) return;
 
     const summary = routeProgressSummary(route);
@@ -107,13 +107,13 @@
       ? Math.round(summary.completedCategories / summary.totalCategories * 100)
       : 0;
     if (word) {
-      $("wordProgressText").textContent = countText;
-      $("wordProgressDetail").textContent = detailText;
-      $("wordProgressFill").style.width = percent + "%";
+      $("#wordProgressText").textContent = countText;
+      $("#wordProgressDetail").textContent = detailText;
+      $("#wordProgressFill").style.width = percent + "%";
     } else {
-      $("conversationProgressText").textContent = countText;
-      $("conversationProgressDetail").textContent = detailText;
-      $("conversationProgressFill").style.width = percent + "%";
+      $("#conversationProgressText").textContent = countText;
+      $("#conversationProgressDetail").textContent = detailText;
+      $("#conversationProgressFill").style.width = percent + "%";
     }
   }
   function showScreen(name) {
