@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff8ef">
   <title>Korean Journey — 物語で旅する韓国語</title>
-  <link rel="stylesheet" href="journey.css?v=route-progress-20261027">
+  <link rel="stylesheet" href="journey.css?v=hangul-route-v1-20261027">
   <script src="audio.js?v=female-audio-20261007" defer></script>
   <script src="journey-data.js?v=journey-episodes-20261027" defer></script>
-  <script src="questions.js?v=map-lesson-card-20261027" defer></script>
-  <script src="journey.js?v=route-progress-fix-20261027" defer></script>
+  <script src="questions.js?v=question-bank-map-20261027" defer></script>
+  <script src="journey.js?v=hangul-route-v1-20261027" defer></script>
 </head>
 <body>
   <main class="journey-app">
@@ -41,12 +41,18 @@
           <div class="progress-track"><span id="conversationProgressFill"></span></div>
           <p id="conversationProgressDetail">会話スポットをクリアすると進捗が記録されます。</p>
         </div>
+        <div id="hangulProgressCard" class="progress-card route-progress-card" hidden>
+          <div class="progress-label"><strong>ハングル入門の進み具合</strong><span id="hangulProgressText">0 / 3 レベルクリア</span></div>
+          <div class="progress-track"><span id="hangulProgressFill"></span></div>
+          <p id="hangulProgressDetail">文字の組み合わせとパッチムを順に学びます。</p>
+        </div>
       </section>
 
       <nav class="journey-route-tabs" aria-label="学習ルート">
         <button type="button" class="journey-route-tab active" data-route="story" aria-pressed="true"><span>🗺️</span><strong>物語の旅</strong><small>物語と実践ミッション</small></button>
         <button type="button" class="journey-route-tab" data-route="word" aria-pressed="false"><span>📚</span><strong>単語ルート</strong><small>カテゴリー別に単語を学ぶ</small></button>
         <button type="button" class="journey-route-tab" data-route="conversation" aria-pressed="false"><span>💬</span><strong>会話ルート</strong><small>短文・会話を場面別に練習</small></button>
+        <button type="button" class="journey-route-tab" data-route="hangul" aria-pressed="false"><span>🔤</span><strong>ハングル入門</strong><small>文字から読み方を練習</small></button>
       </nav>
 
       <div id="storyRoutePanel" class="journey-route-panel">
@@ -87,6 +93,15 @@
           <button type="button" class="direction-option" data-direction="jp-ko" aria-pressed="false">日本語 → 韓国語</button>
         </div>
         <div id="conversationRouteMap" class="quiz-route-map"></div>
+      </section>
+
+      <section id="hangulRoutePanel" class="journey-route-panel quiz-route-panel" hidden aria-labelledby="hangulRouteTitle">
+        <div class="section-heading"><div><p class="eyebrow">HANGUL READING PATH</p><h2 id="hangulRouteTitle">ハングル入門ルート</h2></div><span class="pill">全3レベル</span></div>
+        <p class="map-instruction">文字と音の対応から始め、子音と母音の組み合わせ、パッチムへ進みます。各レベルの問題をすべて解いて満点を取ると、次が開きます。</p>
+        <section class="quiz-zone tone-blue hangul-route-zone" aria-label="ハングルの学習レベル">
+          <header class="quiz-zone-heading"><span class="zone-icon">🔤</span><span class="zone-title-group"><small>文字を読めるようになろう</small><strong>ハングルの読み方</strong></span><span class="zone-total">入門コース</span></header>
+          <div id="hangulRouteMap" class="quiz-level-track hangul-level-track"></div>
+        </section>
       </section>
 
       <section class="tool-links">

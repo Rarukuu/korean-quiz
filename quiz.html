@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Korean Quiz - クイズ</title>
-  <link rel="stylesheet" href="style.css?v=map-quiz-clean-20261027">
+  <link rel="stylesheet" href="style.css?v=hangul-route-v1-20261027">
   <script src="audio.js?v=map-audio-fallback-20261027" defer></script>
-  <script src="questions.js?v=conversation-word-l1-20261007" defer></script>
-  <script src="app.js?v=map-quiz-clean-20261027" defer></script>
+  <script src="questions.js?v=question-bank-map-20261027" defer></script>
+  <script src="app.js?v=hangul-route-v1-20261027" defer></script>
 </head>
 <body>
   <main class="container quiz-container">
@@ -171,8 +171,9 @@
         <label for="formatSelect">出題形式</label>
         <select id="formatSelect" aria-describedby="formatHelp">
           <option value="all">単語＋会話</option>
-          <option value="word">単語</option>
-          <option value="conversation">会話・短文</option>
+        <option value="word">単語</option>
+        <option value="conversation">会話・短文</option>
+        <option value="hangul">ハングル</option>
         </select>
         <label for="levelSelect">レベル</label>
         <select id="levelSelect" aria-describedby="formatHelp"></select>

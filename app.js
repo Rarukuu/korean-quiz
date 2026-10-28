@@ -328,7 +328,7 @@
   function mountMapChallengeCard() {
     if (mapChallengeCardMounted) return;
     const card = $("mapChallengeQuestionCard");
-    [$("koreanText"), $("audioBtn"), $("audioNotice"), $("questionText"), $("choices"), $("result"), $("quickNextBtn")]
+    [$("koreanText"), $("audioBtn"), $("audioNotice"), $("questionText"), $("choices"), $("unknownAnswerBtn"), $("result"), $("quickNextBtn")]
       .forEach((element) => card.appendChild(element));
     $("koreanText").classList.add("quiz-korean");
     $("choices").classList.add("answer-choices");
@@ -342,13 +342,18 @@
     const pool = getMapChallengePool(config);
     const categoryLabel = categorySelect.options[[...categorySelect.options].findIndex((option) => option.value === config.category)]?.textContent || config.category;
     const isWordRoute = config.route === "word";
-    $("routeChallengeTitle").textContent = isWordRoute ? "単語ルート" : "会話ルート";
+    const isHangulRoute = config.route === "hangul";
+    const routeLabel = isWordRoute ? "単語ルート" : isHangulRoute ? "ハングル入門" : "会話ルート";
+    $("routeChallengeTitle").textContent = routeLabel;
     $("routeChallengeDescription").textContent = isWordRoute
       ? "このスポットの単語だけに挑戦します。選んだカテゴリー・レベルの問題を解いて、道を進もう。"
-      : "この場面の短文・会話だけに挑戦します。選んだカテゴリー・レベルの問題を解いて、道を進もう。";
+      : isHangulRoute
+        ? "ハングルを見て音を選ぶ練習です。文字の組み合わせからパッチムまで、順番に読めるようになろう。"
+        : "この場面の短文・会話だけに挑戦します。選んだカテゴリー・レベルの問題を解いて、道を進もう。";
     $("routeChallengeCategory").textContent = categoryLabel;
     $("routeChallengeLevel").textContent = `Level ${config.level}`;
-    $("routeChallengeFormat").textContent = isWordRoute ? "単語問題" : "会話・短文問題";
+    $("routeChallengeFormat").textContent = isWordRoute ? "単語問題" : isHangulRoute ? "文字と音の問題" : "会話・短文問題";
+    $("mapChallengeDirection").hidden = isHangulRoute;
     const hasFourChoices = directionHasFourChoices(pool, config.direction);
     const levelUnlocked = isMapLevelUnlocked(config.route, config.category, config.level);
     $("startRouteChallenge").disabled = !hasFourChoices || !levelUnlocked;
@@ -363,7 +368,7 @@
     $("quizScreen").hidden = true;
     $("screenNav").hidden = true;
     $("mapChallengeProgress").hidden = false;
-    $("quizRouteNotice").textContent = `${isWordRoute ? "単語ルート" : "会話ルート"} · ${categoryLabel} · Level ${config.level}`;
+    $("quizRouteNotice").textContent = `${routeLabel} · ${categoryLabel} · Level ${config.level}`;
     $("quizRouteNotice").hidden = false;
     const homeLink = $(".quiz-navigation .home-link");
     if (homeLink) homeLink.textContent = "← 旅マップへ戻る";
@@ -575,13 +580,14 @@
     const hangulMode = categorySelect.value === "hangul";
     const hangulQuestion = state.currentQuestion && state.currentQuestion.category === "hangul";
     const japaneseToKorean = !hangulQuestion && state.questionDirection === "jp-ko";
+    const activeHangulTimeLimit = mapChallenge?.route === "hangul" ? 0 : state.hangulTimeLimit;
     $("instructions").textContent = hangulQuestion
-      ? `ハングルの文字を見て、${state.hangulTimeLimit ? `${state.hangulTimeLimit}秒以内` : "時間を気にせず"}にどんな音かを選びましょう。回答後に正解の発音を聞けます。`
+      ? `ハングルの文字を見て、${activeHangulTimeLimit ? `${activeHangulTimeLimit}秒以内` : "時間を気にせず"}にどんな音かを選びましょう。回答後に正解の発音を聞けます。`
       : japaneseToKorean
         ? "日本語の意味に合う韓国語を選びます。🔊を押すと発音、文字を押すと回答します。"
         : "韓国語を聞いて、正しい日本語の意味を選んでください。韓国語の文字も表示されます。";
     $("questionHelp").textContent = hangulQuestion
-      ? `「ア」「a」のような音の表記から選んでください。${state.hangulTimeLimit ? `${state.hangulTimeLimit}秒で時間切れになると不正解です。` : "時間切れによる不正解はありません。"}回答前は音声を再生しません。`
+      ? `「ア」「a」のような音の表記から選んでください。${activeHangulTimeLimit ? `${activeHangulTimeLimit}秒で時間切れになると不正解です。` : "時間切れによる不正解はありません。"}回答前は音声を再生しません。`
       : japaneseToKorean
         ? "選択肢の先頭にある🔊で発音を聞き、韓国語の文字を押して回答してください。"
         : "韓国語を聞いて、正しい日本語の意味を選んでください。";
@@ -655,7 +661,8 @@
       button.addEventListener("click", () => checkAnswer(answer));
       $("choices").appendChild(button);
     });
-    $("unknownAnswerBtn").hidden = !hangulQuestion || state.answered;
+    const canMarkUnknown = mapChallenge ? mapChallenge.route === "word" : hangulQuestion;
+    $("unknownAnswerBtn").hidden = !canMarkUnknown || state.answered;
     if (historyEntry) {
       state.questionHistoryIndex = state.questionHistory.indexOf(historyEntry);
       if (historyEntry.answered) {
@@ -689,7 +696,7 @@
       state.questionHistory.push(entry);
       state.questionHistoryIndex = state.questionHistory.length - 1;
     }
-    if (!historyEntry && !state.answered && hangulQuestion && state.hangulTimeLimit > 0) startQuestionTimer();
+    if (!historyEntry && !state.answered && hangulQuestion && activeHangulTimeLimit > 0) startQuestionTimer();
     updateQuestionNavigation();
   }
 
@@ -1176,7 +1183,10 @@
         const breakdown = Array.isArray(question.explanation)
           ? question.explanation.map((part) => `${part.ko} → ${part.jp}`).join(" · ")
           : question.note || "";
-        $("result").textContent = `正解！「${answerText}」${breakdown ? ` — ${breakdown}` : ""}`;
+        const hangulDetails = question.category === "hangul"
+          ? ` 読み方: ${question.romanization || answerText}${question.meaningJa ? ` · 意味: ${question.meaningJa}` : ""}`
+          : "";
+        $("result").textContent = `正解！「${answerText}」${hangulDetails}${breakdown ? ` — ${breakdown}` : ""}`;
       } else renderAnswerExplanation(question, correct);
     } else {
       state.streak = 0;
@@ -1189,7 +1199,10 @@
         const breakdown = Array.isArray(question.explanation)
           ? question.explanation.map((part) => `${part.ko} → ${part.jp}`).join(" · ")
           : question.note || "";
-        $("result").textContent = `不正解。正解は「${answerText}」です。${breakdown ? ` ${breakdown}` : ""}`;
+        const hangulDetails = question.category === "hangul"
+          ? ` 読み方: ${question.romanization || answerText}${question.meaningJa ? ` · 意味: ${question.meaningJa}` : ""}`
+          : "";
+        $("result").textContent = `不正解。正解は「${answerText}」です。${hangulDetails}${breakdown ? ` ${breakdown}` : ""}`;
       } else renderAnswerExplanation(question, correct);
     }
     if (timedOut) $("result").textContent = "⏰ 時間切れ！不正解";
@@ -1326,7 +1339,8 @@
       state.questionDirection = mapRouteConfig.direction;
       directionSelect.value = state.questionDirection;
       syncMapDirectionButtons();
-      $("quizRouteNotice").textContent = `${mapRouteConfig.route === "word" ? "単語ルート" : "会話ルート"} · 出題方向を変更しました。最初の問題から始めます。`;
+      const routeLabel = mapRouteConfig.route === "word" ? "単語ルート" : mapRouteConfig.route === "hangul" ? "ハングル入門" : "会話ルート";
+      $("quizRouteNotice").textContent = `${routeLabel} · 出題方向を変更しました。最初の問題から始めます。`;
       window.KoreanAudio?.stop();
       startMapChallenge();
     });
@@ -1342,8 +1356,8 @@
   const requestedRoute = routeParams.get("route");
   const requestedCategory = routeParams.get("category");
   const requestedFormat = routeParams.get("format");
-  if (["word", "conversation"].includes(requestedRoute) &&
-      ["word", "conversation"].includes(requestedFormat) &&
+  if (["word", "conversation", "hangul"].includes(requestedRoute) &&
+      (["word", "conversation"].includes(requestedFormat) || requestedRoute === "hangul" && requestedFormat === "hangul") &&
       quiz.some((item) => item.category === requestedCategory && item.format === requestedFormat)) {
     categorySelect.value = requestedCategory;
     formatSelect.value = requestedFormat;
@@ -1361,7 +1375,7 @@
       level: state.selectedLevel
     };
     const categoryLabel = categorySelect.options[categorySelect.selectedIndex]?.textContent || requestedCategory;
-    const routeLabel = requestedRoute === "word" ? "単語ルート" : "会話ルート";
+    const routeLabel = requestedRoute === "word" ? "単語ルート" : requestedRoute === "hangul" ? "ハングル入門" : "会話ルート";
     const directionLabel = state.questionDirection === "jp-ko" ? "日本語 → 韓国語" : "韓国語 → 日本語";
     $("quizRouteNotice").textContent = `${routeLabel} · ${categoryLabel} · Level ${state.selectedLevel} · ${directionLabel}`;
   }

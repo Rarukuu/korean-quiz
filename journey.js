@@ -47,12 +47,14 @@
       (Number(round.bestAccuracy) === 100 && Number(round.lastCount) > 0 && Number(round.lastCount) <= 100)));
   }
   function routeProgressSummary(route) {
-    const format = route === "word" ? "word" : "conversation";
+    const format = route === "hangul" ? "hangul" : route === "word" ? "word" : "conversation";
     const saved = readQuizProgress();
-    const categories = quizCategories.map((category) => {
+    const sourceCategories = route === "hangul" ? [{ id: "hangul" }] : quizCategories;
+    const maxLevel = route === "hangul" ? 3 : 5;
+    const categories = sourceCategories.map((category) => {
       const categoryItems = QUIZ_DATA.filter((item) => item.category === category.id && item.format === format);
       const levels = [];
-      for (let level = 1; level <= 5; level += 1) {
+      for (let level = 1; level <= maxLevel; level += 1) {
         const items = categoryItems.filter((item) => Number(item.level) === level);
         if (!items.length) continue;
         const hasFourChoices = items.every((question) => {
@@ -62,7 +64,7 @@
             if (seenKo.has(candidate.ko) || seenJp.has(candidate.jp)) continue;
             seenKo.add(candidate.ko);
             seenJp.add(candidate.jp);
-            if (routeDirections[route] === "jp-ko" ? seenKo.size >= 4 : seenJp.size >= 4) return true;
+            if (route === "hangul" ? seenJp.size >= 4 : routeDirections[route] === "jp-ko" ? seenKo.size >= 4 : seenJp.size >= 4) return true;
           }
           return false;
         });
@@ -84,16 +86,20 @@
   function updateRouteHero(route) {
     const story = route === "story";
     const word = route === "word";
+    const hangul = route === "hangul";
     $("#heroTitleFirst").textContent = "マップを進みながら、";
-    $("#heroTitleSecond").textContent = story ? "韓国語を身につけよう。" : word ? "韓国語の単語を身につけよう。" : "韓国語の会話を身につけよう。";
+    $("#heroTitleSecond").textContent = story ? "韓国語を身につけよう。" : word ? "韓国語の単語を身につけよう。" : hangul ? "ハングルを読めるようになろう。" : "韓国語の会話を身につけよう。";
     $("#heroDescription").textContent = story
       ? "物語、単語、会話。それぞれのルートで場所を選んで挑戦しよう。"
       : word
         ? "カテゴリー別の単語スポットをクリアして、レベルを上げながら進もう。"
-        : "会話テーマごとのスポットをクリアして、短い表現を身につけながら進もう。";
+        : hangul
+          ? "ハングルの文字と音の組み合わせを、3段階で練習しよう。"
+          : "会話テーマごとのスポットをクリアして、短い表現を身につけながら進もう。";
     $("#storyProgressCard").hidden = !story;
     $("#wordProgressCard").hidden = !word;
-    $("#conversationProgressCard").hidden = story || word;
+    $("#conversationProgressCard").hidden = story || word || hangul;
+    $("#hangulProgressCard").hidden = !hangul;
     if (story) return;
 
     const summary = routeProgressSummary(route);
@@ -106,6 +112,14 @@
     const percent = summary.totalCategories
       ? Math.round(summary.completedCategories / summary.totalCategories * 100)
       : 0;
+    if (hangul) {
+      const completed = summary.completedSpots;
+      const hangulPercent = summary.totalSpots ? Math.round(completed / summary.totalSpots * 100) : 0;
+      $("#hangulProgressText").textContent = `${completed} / ${summary.totalSpots} レベルクリア`;
+      $("#hangulProgressDetail").textContent = "各レベルを満点でクリアすると、次の読み方に進めます。";
+      $("#hangulProgressFill").style.width = hangulPercent + "%";
+      return;
+    }
     if (word) {
       $("#wordProgressText").textContent = countText;
       $("#wordProgressDetail").textContent = detailText;
@@ -230,18 +244,48 @@
       zone.append(heading, track); root.append(zone);
     });
   }
+  function renderHangulRoute() {
+    const root = $("#hangulRouteMap");
+    const saved = readQuizProgress();
+    root.replaceChildren();
+    for (let level = 1; level <= 3; level += 1) {
+      const items = QUIZ_DATA.filter((item) => item.category === "hangul" && item.format === "hangul" && Number(item.level) === level);
+      const hasChoices = items.length >= 4;
+      const round = saved.challenges[`hangul|hangul|${level}`] || {};
+      const perfect = isPerfectRound(round);
+      const previous = saved.challenges[`hangul|hangul|${level - 1}`] || {};
+      const unlocked = hasChoices && (level === 1 || isPerfectRound(previous));
+      const node = document.createElement("button");
+      node.type = "button";
+      node.className = "quiz-level-node" + (unlocked ? " is-open" : " is-locked") + (perfect ? " is-complete" : round.attempts ? " is-visited" : "");
+      node.disabled = !unlocked;
+      node.setAttribute("aria-label", `ハングル Level ${level}、${items.length}問、${unlocked ? "挑戦を始める" : "前のレベルを満点クリアすると開放"}`);
+      const badge = document.createElement("span"); badge.className = "level-node-badge"; badge.textContent = perfect ? "✓" : unlocked ? String(level) : hasChoices ? "🔒" : "·";
+      const label = document.createElement("strong"); label.textContent = `Lv.${level}`;
+      const description = level === 1 ? "基本の母音・子音" : level === 2 ? "文字を組み合わせる" : "パッチムのある音節";
+      const detail = document.createElement("small"); detail.textContent = !hasChoices ? "準備中" : perfect ? `満点クリア · ${items.length}問` : !unlocked ? "前Lvを満点で解放" : `${description} · ${items.length}問`;
+      node.append(badge, label, detail);
+      if (unlocked) node.addEventListener("click", () => {
+        const params = new URLSearchParams({ route: "hangul", category: "hangul", level: String(level), format: "hangul", direction: "ko-jp" });
+        window.location.href = "quiz.html?" + params.toString();
+      });
+      root.append(node);
+    }
+  }
   function selectJourneyRoute(route) {
-    const selected = ["story", "word", "conversation"].includes(route) ? route : "story";
+    const selected = ["story", "word", "conversation", "hangul"].includes(route) ? route : "story";
     selectedRoute = selected;
     updateRouteHero(selected);
     $("#storyRoutePanel").hidden = selected !== "story";
     $("#wordRoutePanel").hidden = selected !== "word";
     $("#conversationRoutePanel").hidden = selected !== "conversation";
+    $("#hangulRoutePanel").hidden = selected !== "hangul";
     $$(".journey-route-tab").forEach((button) => {
       const active = button.dataset.route === selected;
       button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active));
     });
-    if (selected !== "story") renderQuizRoute(selected);
+    if (selected === "word" || selected === "conversation") renderQuizRoute(selected);
+    if (selected === "hangul") renderHangulRoute();
   }
   $$(".journey-route-tab").forEach((button) => button.addEventListener("click", () => selectJourneyRoute(button.dataset.route)));
   $$(".direction-option").forEach((button) => button.addEventListener("click", () => {
@@ -442,5 +486,8 @@
   }
   $$(".nav-button").forEach((button) => button.addEventListener("click", () => showScreen(button.dataset.screen.replace("Screen", ""))));
   $$('[data-go-home]').forEach((button) => button.addEventListener("click", () => showScreen("home")));
+  const requestedRoute = new URLSearchParams(window.location.search).get("route");
+  selectedRoute = ["word", "conversation", "hangul"].includes(requestedRoute) ? requestedRoute : "story";
   renderHome();
+  if (selectedRoute !== "story") selectJourneyRoute(selectedRoute);
 })();
