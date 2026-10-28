@@ -27,6 +27,7 @@
   const routeDirections = { word: "ko-jp", conversation: "ko-jp" };
   let progress = loadProgress();
   let activeEpisode = null;
+  let activeStoryMistake = false;
   let questionIndex = 0;
   let mediaUrls = [];
 
@@ -48,7 +49,9 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function renderHome() {
-    const unlocked = Math.min(EPISODES.length, 3 + progress.cleared.length);
+    let completedInOrder = 0;
+    while (completedInOrder < EPISODES.length && progress.cleared.includes(EPISODES[completedInOrder].id)) completedInOrder += 1;
+    const unlocked = Math.min(EPISODES.length, completedInOrder + 1);
     const currentIndex = EPISODES.findIndex((ep, index) => index < unlocked && !progress.cleared.includes(ep.id));
     $("#progressText").textContent = progress.cleared.length + " / " + EPISODES.length + " 話クリア";
     $("#progressFill").style.width = Math.min(100, progress.cleared.length / Math.max(EPISODES.length, 1) * 100) + "%";
@@ -75,7 +78,7 @@
   function readQuizProgress() {
     try {
       const saved = JSON.parse(localStorage.getItem(QUIZ_SAVE_KEY) || "{}");
-      if (!saved || typeof saved !== "object" || Array.isArray(saved)) return { unlockedLevel: 1, wordStats: {} };
+      if (!saved || typeof saved !== "object" || Array.isArray(saved)) return { unlockedLevel: 1, wordStats: {}, challenges: {} };
       return {
         unlockedLevel: Math.min(5, Math.max(1, Number(saved.unlockedLevel) || 1)),
         wordStats: saved.wordStats && typeof saved.wordStats === "object" ? saved.wordStats : {},
@@ -110,7 +113,6 @@
       const track = document.createElement("div"); track.className = "quiz-level-track";
       for (let level = 1; level <= 5; level += 1) {
         const items = uniqueItems.filter((item) => Number(item.level) === level);
-        const answerField = routeDirections[route] === "jp-ko" ? "ko" : "jp";
         const hasFourChoices = items.length > 0 && items.every((question) => {
           const seenKo = new Set([question.ko]); const seenJp = new Set([question.jp]);
           for (const candidate of items) {
@@ -126,17 +128,22 @@
         }).map((item) => item.ko)).size;
         const round = progressData.challenges[`${route}|${category.id}|${level}`] || {};
         const available = items.length > 0 && hasFourChoices;
-        const unlocked = available && level <= progressData.unlockedLevel;
+        const previousRound = progressData.challenges[`${route}|${category.id}|${level - 1}`] || {};
+        const unlockedByPerfect = level === 1 || previousRound.perfect === true ||
+          (Number(previousRound.bestAccuracy) === 100 && Number(previousRound.lastCount) > 0 && Number(previousRound.lastCount) <= 100);
+        const unlocked = available && unlockedByPerfect;
+        const roundPerfect = round.perfect === true ||
+          (Number(round.bestAccuracy) === 100 && Number(round.lastCount) > 0 && Number(round.lastCount) <= 100);
         const node = document.createElement("button"); node.type = "button";
-        node.className = "quiz-level-node" + (unlocked ? " is-open" : " is-locked") + (round.cleared ? " is-complete" : round.attempts || seen ? " is-visited" : "");
+        node.className = "quiz-level-node" + (unlocked ? " is-open" : " is-locked") + (roundPerfect ? " is-complete" : round.attempts || seen ? " is-visited" : "");
         node.disabled = !unlocked;
         node.setAttribute("aria-label", !items.length
           ? category.name + "、レベル" + level + "、問題準備中"
           : !hasFourChoices ? category.name + "、レベル" + level + "、4択問題を準備中"
-            : category.name + "、レベル" + level + "、" + items.length + "問、" + (unlocked ? "チャレンジを始める" : "レベル" + level + "は未解放"));
-        const badge = document.createElement("span"); badge.className = "level-node-badge"; badge.textContent = round.cleared ? "✓" : unlocked ? String(level) : available ? "🔒" : "·";
+            : category.name + "、レベル" + level + "、" + items.length + "問、" + (unlocked ? "チャレンジを始める" : "前のレベルを満点クリアすると解放"));
+        const badge = document.createElement("span"); badge.className = "level-node-badge"; badge.textContent = roundPerfect ? "✓" : unlocked ? String(level) : available ? "🔒" : "·";
         const label = document.createElement("strong"); label.textContent = "Lv." + level;
-        const detail = document.createElement("small"); detail.textContent = !items.length ? "準備中" : !hasFourChoices ? "4択準備中" : !unlocked ? "未解放" : round.cleared ? `クリア · 最高${round.bestAccuracy}%` : round.attempts ? `挑戦${round.attempts}回 · 最高${round.bestAccuracy}%` : seen ? seen + "/" + items.length + " 学習" : items.length + "問";
+        const detail = document.createElement("small"); detail.textContent = !items.length ? "準備中" : !hasFourChoices ? "4択準備中" : !unlocked ? "前Lvを満点で解放" : roundPerfect ? `満点クリア · ${items.length}問` : round.attempts ? `挑戦${round.attempts}回 · 最高${round.bestAccuracy}%` : seen ? seen + "/" + items.length + " 学習" : items.length + "問";
         node.append(badge, label, detail);
         if (unlocked) node.addEventListener("click", () => {
           const params = new URLSearchParams({ route, category: category.id, level: String(level), format, direction: routeDirections[route] });
@@ -180,13 +187,13 @@
     stages.forEach((name, i) => { const li = document.createElement("li"); li.textContent = (i + 1) + ". " + name; li.className = i === active ? "active" : i < active ? "done" : ""; nav.append(li); });
     return nav;
   }
-  function openEpisode(ep) { activeEpisode = ep; renderStory(); showScreen("lesson"); }
+  function openEpisode(ep) { activeEpisode = ep; activeStoryMistake = false; renderStory(); showScreen("lesson"); }
   function renderStory() {
     const root = $("#lessonContent"); root.replaceChildren();
     const n = EPISODES.indexOf(activeEpisode) + 1;
     root.append(makeHeading("STORY " + String(n).padStart(2, "0") + " · 初級", activeEpisode.title, activeEpisode.scene), stageNav(0));
     const card = document.createElement("section"); card.className = "lesson-card";
-    const intro = document.createElement("p"); intro.className = "card-intro"; intro.textContent = "会話を聞きながら、韓国語と日本語訳を確認しましょう。";
+    const intro = document.createElement("p"); intro.className = "card-intro"; intro.textContent = "会話を聞きながら、韓国語と日本語訳を確認しましょう。単語・リスニング・返答に全問正解すると、次の物語スポットが開きます。";
     const toggle = document.createElement("button"); toggle.className = "light-button"; toggle.type = "button"; toggle.textContent = "日本語訳を表示";
     const list = document.createElement("ol"); list.className = "dialogue-list"; let showJapanese = false;
     toggle.addEventListener("click", () => { showJapanese = !showJapanese; $$(".line-japanese", list).forEach((p) => { p.hidden = !showJapanese; }); toggle.textContent = showJapanese ? "日本語訳を隠す" : "日本語訳を表示"; });
@@ -207,6 +214,27 @@
     catch (error) { if (status) status.textContent = window.KoreanAudio?.messageFor(error) || "音声を再生できませんでした。"; }
   }
   function shuffle(items) { const a = [...items]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function playQuizFeedbackSound(correct) {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      const context = new AudioContextClass();
+      const notes = correct ? [784, 1046] : [330, 220];
+      notes.forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const start = context.currentTime + index * (correct ? 0.085 : 0.12);
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(correct ? 0.11 : 0.08, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.17);
+        oscillator.connect(gain); gain.connect(context.destination);
+        oscillator.start(start); oscillator.stop(start + 0.18);
+      });
+      window.setTimeout(() => context.close().catch(() => {}), 600);
+    } catch (error) { console.warn("効果音を再生できませんでした。", error); }
+  }
   function quizQuestions(type) {
     if (type === "word") return activeEpisode.words.map((w) => ({ prompt: w.ko, answer: w.jp, note: w.note }));
     if (type === "listen") return [0, 2, 4].map((i) => ({ prompt: "音声を聞いて、日本語の意味を選んでください。", answer: activeEpisode.lines[i].jp, ko: activeEpisode.lines[i].ko, audio: true }));
@@ -227,7 +255,14 @@
     const q = questions[questionIndex]; const count = document.createElement("p"); count.className = "quiz-count"; count.textContent = (questionIndex + 1) + " / " + questions.length;
     const prompt = document.createElement("h2"); prompt.textContent = q.prompt;
     card.append(count, prompt);
-    if (type === "word") { prompt.lang = "ko"; prompt.classList.add("quiz-korean"); }
+    if (type === "word") {
+      prompt.lang = "ko"; prompt.classList.add("quiz-korean");
+      const audio = document.createElement("button"); audio.type = "button"; audio.className = "audio-button audio-large"; audio.textContent = "🔊 発音を聞く";
+      const status = document.createElement("p"); status.className = "status-text"; status.setAttribute("role", "status");
+      audio.setAttribute("aria-label", q.prompt + " の発音を聞く");
+      audio.addEventListener("click", () => speak(q.prompt, status));
+      card.append(audio, status);
+    }
     if (q.audio) {
       const audio = document.createElement("button"); audio.type = "button"; audio.className = "audio-button audio-large"; audio.textContent = "🔊 音声を聞く"; audio.addEventListener("click", () => speak(q.ko, $("#quizAudioStatus")));
       const status = document.createElement("p"); status.id = "quizAudioStatus"; status.className = "status-text"; status.setAttribute("role", "status"); card.append(audio, status);
@@ -240,10 +275,13 @@
       button.addEventListener("click", () => {
         $$(".choice-button", choices).forEach((el) => { el.disabled = true; });
         if (option === q.answer) {
+          playQuizFeedbackSound(true);
           button.classList.add("correct"); feedback.textContent = q.note ? q.answer + "。" + q.note : "正解です。会話の流れをつかめています。";
           next.hidden = false; next.textContent = questionIndex === questions.length - 1 ? (type === "word" ? "リスニングへ →" : type === "listen" ? "会話の返答へ →" : "会話練習へ →") : "次へ →";
           next.onclick = () => { questionIndex++; if (questionIndex < questions.length) renderQuiz(type, questions); else if (type === "word") startQuiz("listen"); else if (type === "listen") startQuiz("reply"); else renderSpeakingPractice(); };
         } else {
+          activeStoryMistake = true;
+          playQuizFeedbackSound(false);
           button.classList.add("incorrect"); feedback.textContent = "もう一度考えてみましょう。正解は「" + q.answer + "」です。"; next.hidden = false; next.textContent = "この問題に再挑戦"; next.onclick = () => renderQuiz(type, questions);
         }
       }); choices.append(button);
@@ -277,6 +315,15 @@
     root.append(card);
   }
   function finishEpisode() {
+    if (activeStoryMistake) {
+      const root = $("#lessonContent"); root.replaceChildren();
+      root.append(makeHeading("STORY RESULT", "もう一度チャレンジ", "今回は間違えた問題があったため、次の物語スポットはまだ開きません。"));
+      const card = document.createElement("section"); card.className = "lesson-card";
+      const message = document.createElement("p"); message.className = "card-intro"; message.textContent = "この物語の単語・リスニング・返答に全問正解すると、次のスポットへ進めます。最初からやり直して満点を目指しましょう。";
+      const retry = document.createElement("button"); retry.type = "button"; retry.className = "primary-button"; retry.textContent = "この物語を最初からやり直す"; retry.addEventListener("click", () => openEpisode(activeEpisode));
+      const home = document.createElement("button"); home.type = "button"; home.className = "light-button"; home.textContent = "旅のマップへ戻る"; home.addEventListener("click", () => showScreen("home"));
+      card.append(message, retry, home); root.append(card); showScreen("lesson"); return;
+    }
     if (!progress.cleared.includes(activeEpisode.id)) progress.cleared.push(activeEpisode.id);
     saveProgress(); renderMission(activeEpisode); showScreen("lesson");
   }

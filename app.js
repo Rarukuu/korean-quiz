@@ -210,7 +210,7 @@
       option.disabled = level > state.unlockedLevel;
       levelSelect.appendChild(option);
     }
-    state.selectedLevel = Math.min(previous, state.unlockedLevel, MAX_LEVEL);
+    state.selectedLevel = Math.min(previous, mapRouteConfig ? MAX_LEVEL : state.unlockedLevel, MAX_LEVEL);
     levelSelect.value = String(state.selectedLevel);
   }
 
@@ -300,6 +300,20 @@
     });
   }
 
+  function readMapChallengeProgress() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(MAP_CHALLENGE_KEY) || "{}");
+      return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+    } catch { return {}; }
+  }
+
+  function isMapLevelUnlocked(route, category, level) {
+    if (level === 1) return true;
+    const previous = readMapChallengeProgress()[`${route}|${category}|${level - 1}`];
+    return Boolean(previous && (previous.perfect === true ||
+      (Number(previous.bestAccuracy) === 100 && Number(previous.lastCount) > 0 && Number(previous.lastCount) <= 100)));
+  }
+
   function prepareMapChallenge(config) {
     mapRouteConfig = config;
     const pool = getMapChallengePool(config);
@@ -312,23 +326,14 @@
     $("routeChallengeCategory").textContent = categoryLabel;
     $("routeChallengeLevel").textContent = `Level ${config.level}`;
     $("routeChallengeFormat").textContent = isWordRoute ? "単語問題" : "会話・短文問題";
-    $("routeChallengeCount").replaceChildren();
     const hasFourChoices = directionHasFourChoices(pool, config.direction);
-    const countOptions = [5, 10, 15].filter((count) => count <= pool.length);
-    if (pool.length >= 4 && !countOptions.includes(pool.length)) countOptions.push(pool.length);
-    countOptions.sort((a, b) => a - b);
-    countOptions.forEach((count) => {
-      const option = document.createElement("option"); option.value = String(count);
-      option.textContent = count === pool.length && ![5, 10, 15].includes(count) ? `${count}問（このレベルの全問題）` : `${count}問`;
-      $("routeChallengeCount").append(option);
-    });
-    const defaultCount = countOptions.includes(10) ? 10 : countOptions.includes(5) ? 5 : countOptions[0];
-    if (defaultCount) $("routeChallengeCount").value = String(defaultCount);
-    $("routeChallengeCount").disabled = !hasFourChoices || !countOptions.length;
-    $("startRouteChallenge").disabled = !hasFourChoices || !countOptions.length;
-    $("routeChallengeCountHelp").textContent = !hasFourChoices
+    const levelUnlocked = isMapLevelUnlocked(config.route, config.category, config.level);
+    $("startRouteChallenge").disabled = !hasFourChoices || !levelUnlocked;
+    $("routeChallengeCountHelp").textContent = !levelUnlocked
+      ? `Level ${config.level - 1}を満点でクリアすると、このスポットが開きます。`
+      : !hasFourChoices
       ? "このカテゴリー・レベルには、同じ範囲だけで4択を作れる問題がまだ足りません。問題を追加すると挑戦できます。"
-      : `このスポットには${pool.length}問あります。問題はこのカテゴリー・レベル・形式の中から出題され、同じ問題は1回の挑戦で繰り返しません。`;
+      : `このスポットの${pool.length}問をすべて出題します。同じ問題は1回の挑戦で繰り返しません。満点クリアで次のレベルが開きます。`;
     $("routeChallengeIntro").hidden = false;
     $("routeChallengeResult").hidden = true;
     $("quizScreen").hidden = true;
@@ -344,9 +349,9 @@
   function startMapChallenge() {
     if (!mapRouteConfig) return;
     const pool = getMapChallengePool(mapRouteConfig);
-    if (!directionHasFourChoices(pool, mapRouteConfig.direction)) return;
-    const requestedCount = Number($("routeChallengeCount").value) || pool.length;
-    const questions = shuffle(pool).slice(0, Math.min(requestedCount, pool.length));
+    if (!isMapLevelUnlocked(mapRouteConfig.route, mapRouteConfig.category, mapRouteConfig.level) ||
+        !directionHasFourChoices(pool, mapRouteConfig.direction)) return;
+    const questions = shuffle(pool);
     if (!questions.length) return;
     mapChallenge = { ...mapRouteConfig, questions, index: 0, correct: 0 };
     $("routeChallengeIntro").hidden = true;
@@ -359,16 +364,19 @@
   function finishMapChallenge() {
     if (!mapChallenge) return;
     const accuracy = Math.round(mapChallenge.correct / mapChallenge.questions.length * 100);
-    const cleared = accuracy >= LEVEL_UP_ACCURACY;
+    const perfect = mapChallenge.correct === mapChallenge.questions.length;
+    const cleared = perfect;
     try {
-      const raw = JSON.parse(localStorage.getItem(MAP_CHALLENGE_KEY) || "{}");
-      const saved = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+      const saved = readMapChallengeProgress();
       const key = `${mapChallenge.route}|${mapChallenge.category}|${mapChallenge.level}`;
       const previous = saved[key] && typeof saved[key] === "object" ? saved[key] : {};
+      const previousPerfect = previous.perfect === true ||
+        (Number(previous.bestAccuracy) === 100 && Number(previous.lastCount) > 0 && Number(previous.lastCount) <= 100);
       saved[key] = {
         attempts: Math.max(0, Number(previous.attempts) || 0) + 1,
         bestAccuracy: Math.max(accuracy, Number(previous.bestAccuracy) || 0),
-        cleared: Boolean(previous.cleared) || cleared,
+        perfect: previousPerfect || perfect,
+        cleared: previousPerfect || perfect,
         lastAccuracy: accuracy,
         lastCount: mapChallenge.questions.length
       };
@@ -378,7 +386,7 @@
     $("routeChallengeResultScore").textContent = `${mapChallenge.correct} / ${mapChallenge.questions.length}問 · ${accuracy}%`;
     $("routeChallengeResultMessage").textContent = cleared
       ? "このスポットの道をクリアしました。旅マップに戻ると、ベスト記録が残っています。"
-      : "このスポットの問題だけでもう一度挑戦できます。80%以上でスポットクリアです。";
+      : "このスポットの問題だけでもう一度挑戦できます。満点で次のレベルが開きます。";
     $("quizScreen").hidden = true;
     $("mapChallengeProgress").hidden = true;
     $("routeChallengeIntro").hidden = true;
@@ -581,6 +589,8 @@
       ? (state.isReviewQuestion ? "🔁 ハングルの音を復習しましょう" : "ハングルの形を見て、音を選びましょう")
       : japaneseToKorean
         ? (state.isReviewQuestion ? "🔁 日本語に合う韓国語を選びましょう" : "日本語から韓国語を選びましょう")
+        : mapChallenge && state.currentQuestion.format === "word"
+          ? "単語の意味を選びましょう"
         : (state.isReviewQuestion ? "🔁 復習問題を聞いて答えよう" : "🔊 音声を聞いて答えよう");
     if (!historyEntry) {
       state.currentChoices = japaneseToKorean
@@ -730,6 +740,28 @@
     } catch (error) {
       console.warn("正解音を再生できませんでした。", error);
     }
+  }
+
+  async function playChallengeWrongSound() {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!state.soundContext || state.soundContext.state === "closed") state.soundContext = new AudioContextClass();
+      const context = state.soundContext;
+      if (context.state === "suspended") await context.resume();
+      [330, 220].forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const start = context.currentTime + index * 0.12;
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.08, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.17);
+        oscillator.connect(gain); gain.connect(context.destination);
+        oscillator.start(start); oscillator.stop(start + 0.18);
+      });
+    } catch (error) { console.warn("不正解音を再生できませんでした。", error); }
   }
 
   function getSpeechText(playAnswerSound = false) {
@@ -1106,13 +1138,15 @@
       state.correctAnswers += 1;
       stats.correct += 1;
       if (state.isReviewQuestion) state.reviewQueue = state.reviewQueue.filter((entry) => entry.question.ko !== question.ko);
-      if (!japaneseToKorean) void playCorrectSound();
+      if (mapChallenge) void playCorrectSound();
+      else if (!japaneseToKorean) void playCorrectSound();
       renderAnswerExplanation(question, correct);
     } else {
       state.streak = 0;
       stats.wrong += 1;
       queueForReview(question);
-      if (!japaneseToKorean) void playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+      if (mapChallenge) void playChallengeWrongSound();
+      else if (!japaneseToKorean) void playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
       renderAnswerExplanation(question, correct);
     }
     if (timedOut) $("result").textContent = "⏰ 時間切れ！不正解";
@@ -1262,7 +1296,7 @@
     directionSelect.value = state.questionDirection;
     const requestedLevel = Number(routeParams.get("level"));
     if (Number.isInteger(requestedLevel) && requestedLevel > 0) {
-      state.selectedLevel = Math.min(requestedLevel, state.unlockedLevel, MAX_LEVEL);
+      state.selectedLevel = Math.min(requestedLevel, MAX_LEVEL);
     }
     mapRouteConfig = {
       route: requestedRoute,
